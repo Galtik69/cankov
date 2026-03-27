@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>PetHotel | Агрегатор отелей для животных — ТЗ, Договор, Отчёт</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f4f6fa;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: linear-gradient(135deg, #1a4d3e 0%, #0f3b2f 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo span {
+            background: #f4a261;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: #1e293b;
+        }
+        .role-switch {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.3rem;
+            border-radius: 50px;
+            flex-wrap: wrap;
+        }
+        .role-btn {
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: transparent;
+            color: white;
+            font-size: 0.85rem;
+        }
+        .role-btn.active {
+            background: #f4a261;
+            color: #1e293b;
+        }
+        .user-info {
+            background: #f4a261;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .view {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+        .view.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        /* Cards & UI */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #f4a261;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a4d3e;
+        }
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            color: #2d6a4f;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #f4a261;
+        }
+        button {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.3rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #f4a261;
+            transform: scale(1.01);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #2d6a4f;
+            color: #2d6a4f;
+        }
+        .btn-sm {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        .hotels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.2rem;
+        }
+        .hotel-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .hotel-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .hotel-img {
+            height: 130px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .hotel-info {
+            padding: 1rem;
+        }
+        .hotel-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .price {
+            color: #f4a261;
+            font-weight: bold;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-completed { background: #cce5ff; color: #004085; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .pet-item, .booking-item, .care-log-item {
+            background: #fef9e8;
+            padding: 0.8rem;
+            border-radius: 16px;
+            margin-bottom: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 700px) {
+            .header { flex-direction: column; text-align: center; }
+            .container { padding: 1rem; }
+        }
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #e9ecef;
+            font-size: 0.75rem;
+            margin-top: 2rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo"><img src="PETHOTEL.png" width="100" height="100" alt=""> PetHotel <span>агрегатор отелей для животных</span></div>
+    <div class="role-switch">
+        <button class="role-btn active" data-role="client">🐕 Клиент</button>
+        <button class="role-btn" data-role="staff">🩺 Сотрудник отеля</button>
+        <button class="role-btn" data-role="admin">⚙️ Администратор</button>
+    </div>
+    <div class="user-info" id="globalUser">Владелец: Алексей</div>
+</div>
+
+<div class="container">
+    <!-- ================= КЛИЕНТ ================= -->
+    <div id="clientView" class="view active">
+        <div class="stats-grid">
+            <div class="stat-card"><h3>🐶 Мои питомцы</h3><div class="stat-number" id="clientPetCount">0</div></div>
+            <div class="stat-card"><h3>📅 Активные заявки</h3><div class="stat-number" id="clientBookingCount">0</div></div>
+            <div class="stat-card"><h3>🏨 Отелей в базе</h3><div class="stat-number" id="totalHotelsCount">0</div></div>
+        </div>
+        <!-- Добавить питомца -->
+        <div class="form-card">
+            <h3>➕ Добавить питомца (ТЗ: кличка, вид, особенности)</h3>
+            <div class="form-group"><label>Кличка</label><input type="text" id="petName" placeholder="Рекс"></div>
+            <div class="form-group"><label>Вид / Порода</label><input type="text" id="petType" placeholder="Собака, корги"></div>
+            <div class="form-group"><label>Особенности (аллергии, рацион, характер)</label><textarea id="petFeatures" rows="2" placeholder="Не ест курицу, нужны долгие прогулки"></textarea></div>
+            <button onclick="addClientPet()">➕ Добавить</button>
+        </div>
+        <div class="form-card"><h3>🐕 Мои питомцы</h3><div id="petsList"></div></div>
+        <div class="form-card"><h3>🏨 Отели (выберите для брони)</h3><div id="hotelsList" class="hotels-grid"></div></div>
+        <div class="form-card"><h3>📋 Мои заявки на бронирование (статус из ТЗ)</h3><div id="clientBookingsList"></div></div>
+        <div class="form-card"><h3>📸 Фотоотчёты по уходу (ПС-02 из ТЗ)</h3><div id="clientCareReports"></div></div>
+    </div>
+
+    <!-- ================= СОТРУДНИК ОТЕЛЯ (смотритель/ветеринар) ================= -->
+    <div id="staffView" class="view">
+        <div class="stats-grid">
+            <div class="stat-card"><h3>🐾 Активные животные</h3><div class="stat-number" id="staffActivePets">0</div></div>
+            <div class="stat-card"><h3>📋 Сегодняшние задачи</h3><div class="stat-number" id="staffTasks">0</div></div>
+        </div>
+        <div class="form-card">
+            <label>Выберите ваш отель</label>
+            <select id="staffHotelSelect" onchange="refreshStaffView()"></select>
+        </div>
+        <div class="form-card">
+            <h3>📝 Журнал ухода (ПС-02: кормление, прогулка, лекарства, фото)</h3>
+            <div class="form-group"><label>Питомец (активные брони)</label><select id="carePetSelect"></select></div>
+            <div class="form-group"><label>Тип ухода</label><select id="careTypeSelect"><option>🍖 Кормление</option><option>🚶 Прогулка</option><option>💊 Лекарство</option><option>📸 Фотоотчёт</option></select></div>
+            <div class="form-group"><label>Комментарий / ссылка на фото</label><input id="careComment" placeholder="URL фото или описание"></div>
+            <button onclick="addCareRecordStaff()">➕ Записать уход</button>
+        </div>
+        <div class="form-card"><h3>📋 Последние записи ухода</h3><div id="staffCareLog"></div></div>
+        <div class="form-card"><h3>🏨 Активные брони (требуют ухода)</h3><div id="staffBookingsList"></div></div>
+    </div>
+
+    <!-- ================= АДМИНИСТРАТОР (управление отелями, аналитика из договора и ТЗ) ================= -->
+    <div id="adminView" class="view">
+        <div class="stats-grid">
+            <div class="stat-card"><h3>💰 Общая выручка</h3><div class="stat-number" id="adminRevenue">0 ₽</div></div>
+            <div class="stat-card"><h3>📋 Всего броней</h3><div class="stat-number" id="adminTotalBookings">0</div></div>
+            <div class="stat-card"><h3>🏨 Отелей</h3><div class="stat-number" id="adminHotelsCount">0</div></div>
+        </div>
+        <div class="form-card">
+            <h3>🏨 Управление отелями (ТЗ: номера, услуги)</h3>
+            <div class="form-group"><label>Название отеля</label><input id="newHotelName" placeholder="ЛюксПитомец"></div>
+            <div class="form-group"><label>Адрес</label><input id="newHotelAddr" placeholder="г. Иркутск, ул..."></div>
+            <div class="form-group"><label>Цена за сутки (₽)</label><input id="newHotelPrice" type="number" placeholder="1200"></div>
+            <div class="form-group"><label>Услуги (через запятую)</label><input id="newHotelServices" placeholder="Груминг, ветеринар"></div>
+            <button onclick="addHotel()">➕ Добавить отель</button>
+        </div>
+        <div class="form-card">
+            <h3>📊 Отчёт по загрузке (из договора и ТЗ)</h3>
+            <button onclick="generateAdminReport()">📈 Сформировать аналитику</button>
+            <pre id="adminReportArea" style="background:#f0f2f5; padding:1rem; border-radius:16px; margin-top:1rem;"></pre>
+        </div>
+        <div class="form-card">
+            <h3>📋 Все заявки (управление статусами)</h3>
+            <div id="adminBookingsList"></div>
+        </div>
+        <div class="form-card">
+            <h3>🏨 Список отелей</h3>
+            <div id="adminHotelsList"></div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    📄 Основано на Договоре №228 (Санковец Д.А., исполнители Соколовский, Дроздов, Мункожаргалов) | ТЗ (ПС-01, ПС-02, ПС-05) | Отчёт Спринт 2 | PetHotel — агрегатор для бронирования и ухода
+</footer>
+
+<script>
+    // ========== БАЗА ДАННЫХ (localStorage) на основе трёх документов ==========
+    let hotels = JSON.parse(localStorage.getItem('pet_hotels')) || [
+        { id: 1, name: "🐕 ЛюксПитомец", address: "г. Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар","Фотоотчёты"], image: "https://picsum.photos/id/169/300/150" },
+        { id: 2, name: "🐈 КотоДом", address: "г. Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игровая зона"], image: "https://picsum.photos/id/150/300/150" },
+        { id: 3, name: "🏡 ЗооРай", address: "г. Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "https://picsum.photos/id/20/300/150" }
+    ];
+    let pets = JSON.parse(localStorage.getItem('pet_pets')) || [];
+    let bookings = JSON.parse(localStorage.getItem('pet_bookings')) || [];
+    let careRecords = JSON.parse(localStorage.getItem('pet_care_records')) || [];
+    const currentUser = { id: "user_alexey", name: "Алексей" };
+
+    function saveAll() {
+        localStorage.setItem('pet_hotels', JSON.stringify(hotels));
+        localStorage.setItem('pet_pets', JSON.stringify(pets));
+        localStorage.setItem('pet_bookings', JSON.stringify(bookings));
+        localStorage.setItem('pet_care_records', JSON.stringify(careRecords));
+    }
+
+    // helpers
+    function getUserPets() { return pets.filter(p => p.userId === currentUser.id); }
+    function getUserBookings() { return bookings.filter(b => b.userId === currentUser.id); }
+
+    // Рендеры клиента
+    function renderClient() {
+        const userPets = getUserPets();
+        document.getElementById('clientPetCount').innerText = userPets.length;
+        document.getElementById('clientBookingCount').innerText = getUserBookings().length;
+        document.getElementById('totalHotelsCount').innerText = hotels.length;
+
+        const petsDiv = document.getElementById('petsList');
+        if(userPets.length===0) petsDiv.innerHTML = "<p>Добавьте питомца</p>";
+        else petsDiv.innerHTML = userPets.map(p => `<div class="pet-item"><div><strong>${p.name}</strong> (${p.breed})<br><small>${p.features}</small></div><button class="btn-sm btn-outline" onclick="deletePet(${p.id})">🗑️</button></div>`).join('');
+
+        const hotelsDiv = document.getElementById('hotelsList');
+        hotelsDiv.innerHTML = hotels.map(h => `<div class="hotel-card" onclick="openBookingModal(${h.id})"><div class="hotel-img" style="background-image:url('${h.image}'); background-size:cover;"></div><div class="hotel-info"><div class="hotel-name">${h.name}</div><div>📍 ${h.address}</div><div class="price">${h.pricePerDay} ₽/сутки</div><div>${h.services.join(', ')}</div></div></div>`).join('');
+
+        const bookingsDiv = document.getElementById('clientBookingsList');
+        const myBookings = getUserBookings().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+        if(myBookings.length===0) bookingsDiv.innerHTML = "<p>Нет заявок</p>";
+        else bookingsDiv.innerHTML = myBookings.map(b => {
+            const hotel = hotels.find(h=>h.id===b.hotelId);
+            return `<div class="booking-item"><div><strong>${hotel?.name || 'Отель'}</strong> | ${b.petName}<br>📅 ${b.checkIn} — ${b.checkOut}<br>💰 ${b.totalPrice}₽ | Услуги: ${b.extras}<br><span class="status-badge status-${b.status}">${getStatusText(b.status)}</span></div>${b.status === 'pending' ? `<button onclick="cancelBooking(${b.id})">Отменить</button>` : ''}</div>`;
+        }).join('');
+
+        // фотоотчёты
+        const myPetsIds = userPets.map(p=>p.id);
+        const myCare = careRecords.filter(c => myPetsIds.includes(c.petId)).reverse();
+        const careDiv = document.getElementById('clientCareReports');
+        if(myCare.length===0) careDiv.innerHTML = "<p>Пока нет фотоотчётов</p>";
+        else careDiv.innerHTML = myCare.map(c => `<div class="care-log-item"><strong>${c.type}</strong> для ${c.petName}<br>${c.comment} <br><small>${c.date}</small></div>`).join('');
+    }
+
+    function addClientPet() {
+        const name = document.getElementById('petName').value.trim();
+        const breed = document.getElementById('petType').value.trim();
+        const features = document.getElementById('petFeatures').value.trim();
+        if(!name || !breed) { alert("Заполните имя и вид"); return; }
+        pets.push({ id: Date.now(), userId: currentUser.id, name, breed, features });
+        saveAll();
+        renderClient();
+        document.getElementById('petName').value = '';
+        document.getElementById('petType').value = '';
+        document.getElementById('petFeatures').value = '';
+    }
+    function deletePet(id) { if(confirm("Удалить питомца?")) { pets = pets.filter(p=>p.id!==id); bookings = bookings.filter(b=>b.petId!==id); careRecords = careRecords.filter(c=>c.petId!==id); saveAll(); renderClient(); } }
+
+    let selectedHotelId = null;
+    function openBookingModal(hotelId) {
+        selectedHotelId = hotelId;
+        const hotel = hotels.find(h=>h.id===hotelId);
+        const userPets = getUserPets();
+        if(userPets.length===0) { alert("Сначала добавьте питомца"); return; }
+        const modalHtml = `<div id="bookingModal" class="modal" style="display:flex;"><div class="modal-content"><h3>Бронирование в ${hotel.name}</h3>
+            <div class="form-group"><label>Питомец</label><select id="modalPetSelect">${userPets.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+            <div class="form-group"><label>Заезд</label><input type="date" id="modalCheckIn"></div>
+            <div class="form-group"><label>Выезд</label><input type="date" id="modalCheckOut"></div>
+            <div class="form-group"><label>Доп. услуги (через запятую)</label><input id="modalExtras" placeholder="Груминг, ветеринар"></div>
+            <div style="display:flex; gap:1rem; justify-content:flex-end;"><button onclick="closeModal()">Отмена</button><button onclick="submitBooking(${hotelId})">Отправить заявку</button></div></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const today = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
+        document.getElementById('modalCheckIn').value = today;
+        document.getElementById('modalCheckOut').value = tomorrow;
+    }
+    function closeModal() { const m = document.getElementById('bookingModal'); if(m) m.remove(); }
+    function submitBooking(hotelId) {
+        const petId = parseInt(document.getElementById('modalPetSelect').value);
+        const checkIn = document.getElementById('modalCheckIn').value;
+        const checkOut = document.getElementById('modalCheckOut').value;
+        const extras = document.getElementById('modalExtras').value;
+        const pet = pets.find(p=>p.id===petId);
+        const hotel = hotels.find(h=>h.id===hotelId);
+        const days = Math.max(1, Math.ceil((new Date(checkOut)-new Date(checkIn))/(1000*3600*24)));
+        const total = days * hotel.pricePerDay + (extras ? 300 : 0);
+        const newBooking = { id: Date.now(), userId: currentUser.id, hotelId, petId, petName: pet.name, checkIn, checkOut, extras: extras||"нет", totalPrice: total, status: "pending", createdAt: new Date().toISOString() };
+        bookings.push(newBooking);
+        saveAll();
+        closeModal();
+        renderClient();
+        alert("Заявка отправлена! Отель обработает.");
+    }
+    function cancelBooking(id) { bookings = bookings.map(b=>b.id===id?{...b, status:"cancelled"}:b); saveAll(); renderClient(); if(document.getElementById('staffView').classList.contains('active')) refreshStaffView(); if(document.getElementById('adminView').classList.contains('active')) renderAdmin(); }
+    function getStatusText(s) { const map={pending:"⏳ На рассмотрении", confirmed:"✅ Подтверждено", completed:"🏁 Завершено", cancelled:"❌ Отменено"}; return map[s]; }
+
+    // ========== СОТРУДНИК ==========
+    function refreshStaffView() {
+        const hotelId = document.getElementById('staffHotelSelect').value;
+        if(!hotelId) { document.getElementById('staffActivePets').innerText='0'; document.getElementById('staffTasks').innerText='0'; return; }
+        const hotelBookings = bookings.filter(b=>b.hotelId == hotelId && (b.status==='confirmed' || b.status==='pending'));
+        const activePets = hotelBookings.filter(b=>b.status==='confirmed' && new Date(b.checkOut)>=new Date()).length;
+        document.getElementById('staffActivePets').innerText = activePets;
+        document.getElementById('staffTasks').innerText = hotelBookings.filter(b=>b.status==='confirmed').length;
+        const careSelect = document.getElementById('carePetSelect');
+        const confirmedList = hotelBookings.filter(b=>b.status==='confirmed');
+        careSelect.innerHTML = confirmedList.map(b=>`<option value="${b.petId}|${b.id}">${b.petName}</option>`).join('');
+        if(confirmedList.length===0) careSelect.innerHTML = '<option>Нет активных</option>';
+        const staffBookDiv = document.getElementById('staffBookingsList');
+        staffBookDiv.innerHTML = hotelBookings.map(b=>`<div class="booking-item">🐕 ${b.petName} | ${b.checkIn}—${b.checkOut}<br>${b.extras}</div>`).join('');
+        const logs = careRecords.filter(c=>c.hotelId == hotelId).reverse().slice(0,10);
+        const logDiv = document.getElementById('staffCareLog');
+        logDiv.innerHTML = logs.map(l=>`<div class="care-log-item"><strong>${l.type}</strong> ${l.petName} — ${l.comment}<br><small>${l.date}</small></div>`).join('');
+        if(logs.length===0) logDiv.innerHTML = '<p>Нет записей ухода</p>';
+    }
+    function addCareRecordStaff() {
+        const hotelId = document.getElementById('staffHotelSelect').value;
+        if(!hotelId) { alert("Выберите отель"); return; }
+        const petOption = document.getElementById('carePetSelect').value;
+        if(!petOption || petOption === 'Нет активных') { alert("Выберите питомца"); return; }
+        const [petId, bookingId] = petOption.split('|');
+        const type = document.getElementById('careTypeSelect').value;
+        const comment = document.getElementById('careComment').value;
+        const pet = pets.find(p=>p.id == petId);
+        careRecords.push({ id: Date.now(), petId: parseInt(petId), petName: pet?.name || "Питомец", type, comment: comment||"Выполнено", date: new Date().toLocaleString(), hotelId: parseInt(hotelId), bookingId: parseInt(bookingId) });
+        saveAll();
+        refreshStaffView();
+        document.getElementById('careComment').value = '';
+    }
+    function initStaffSelect() { const sel = document.getElementById('staffHotelSelect'); sel.innerHTML = '<option value="">-- Отель --</option>'+hotels.map(h=>`<option value="${h.id}">${h.name}</option>`).join(''); sel.onchange = refreshStaffView; }
+
+    // ========== АДМИНИСТРАТОР ==========
+    function renderAdmin() {
+        document.getElementById('adminRevenue').innerText = bookings.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+(b.totalPrice||0),0) + " ₽";
+        document.getElementById('adminTotalBookings').innerText = bookings.length;
+        document.getElementById('adminHotelsCount').innerText = hotels.length;
+        const adminBookDiv = document.getElementById('adminBookingsList');
+        adminBookDiv.innerHTML = bookings.map(b=>{
+            const hotel = hotels.find(h=>h.id===b.hotelId);
+            return `<div class="booking-item"><div><strong>${hotel?.name}</strong> | ${b.petName}<br>📅 ${b.checkIn}—${b.checkOut} 💰${b.totalPrice}₽<br>Статус: <span class="status-badge status-${b.status}">${getStatusText(b.status)}</span></div>
+            <div>${b.status==='pending'?`<button onclick="updateBookingStatus(${b.id},'confirmed')">✅ Подтвердить</button> <button onclick="updateBookingStatus(${b.id},'cancelled')">❌ Отказать</button>`:''}
+            ${b.status==='confirmed'?`<button onclick="updateBookingStatus(${b.id},'completed')">🏁 Завершить</button>`:''}</div></div>`;
+        }).join('');
+        const adminHotelsDiv = document.getElementById('adminHotelsList');
+        adminHotelsDiv.innerHTML = hotels.map(h=>`<div class="pet-item">🏨 ${h.name} | ${h.pricePerDay}₽/сут | ${h.services.join(', ')}<button class="btn-sm btn-outline" onclick="deleteHotel(${h.id})">Удалить</button></div>`).join('');
+    }
+    function updateBookingStatus(id, newStatus) { bookings = bookings.map(b=>b.id===id?{...b, status:newStatus}:b); saveAll(); renderAdmin(); renderClient(); refreshStaffView(); }
+    function addHotel() {
+        const name = document.getElementById('newHotelName').value.trim();
+        const addr = document.getElementById('newHotelAddr').value.trim();
+        const price = parseInt(document.getElementById('newHotelPrice').value);
+        const services = document.getElementById('newHotelServices').value.split(',').map(s=>s.trim());
+        if(!name || !addr || isNaN(price)) { alert("Заполните поля"); return; }
+        hotels.push({ id: Date.now(), name, address: addr, pricePerDay: price, services: services.length?services:["Уход"], image: "https://picsum.photos/id/26/300/150" });
+        saveAll();
+        renderAdmin();
+        renderClient();
+        initStaffSelect();
+        document.getElementById('newHotelName').value = '';
+        document.getElementById('newHotelAddr').value = '';
+        document.getElementById('newHotelPrice').value = '';
+        document.getElementById('newHotelServices').value = '';
+    }
+    function deleteHotel(id) { hotels = hotels.filter(h=>h.id!==id); saveAll(); renderAdmin(); renderClient(); initStaffSelect(); }
+    function generateAdminReport() {
+        const totalRevenue = bookings.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+(b.totalPrice||0),0);
+        const totalBookings = bookings.length;
+        const confirmed = bookings.filter(b=>b.status==='confirmed').length;
+        const report = `📊 ОТЧЕТ ПО АГРЕГАТОРУ (на основе договора №228 и ТЗ):
+• Общая выручка: ${totalRevenue} ₽
+• Всего бронирований: ${totalBookings}
+• Подтверждено: ${confirmed}
+• Активных отелей: ${hotels.length}
+• Стек технологий: .NET/Java, React/Vue, MS SQL (ТЗ раздел 3.1.3)
+• Гарантийные обязательства: 12 месяцев (Договор п.6.1)
+• Исполнители: Соколовский В.А., Дроздов Г.А., Мункожаргалов Д.З.
+• Заказчик: Санковец Д.А.
+✅ Система автоматизирует бронирование, уход, фотоотчёты и аналитику.`;
+        document.getElementById('adminReportArea').innerText = report;
+    }
+
+    // ========== РОЛЕВОЙ ПЕРЕКЛЮЧАТЕЛЬ ==========
+    function setRole(role) {
+        document.getElementById('clientView').classList.remove('active');
+        document.getElementById('staffView').classList.remove('active');
+        document.getElementById('adminView').classList.remove('active');
+        if(role === 'client') document.getElementById('clientView').classList.add('active');
+        if(role === 'staff') document.getElementById('staffView').classList.add('active');
+        if(role === 'admin') document.getElementById('adminView').classList.add('active');
+        document.querySelectorAll('.role-btn').forEach(btn=>{ if(btn.dataset.role===role) btn.classList.add('active'); else btn.classList.remove('active'); });
+        if(role === 'client') renderClient();
+        if(role === 'staff') { initStaffSelect(); refreshStaffView(); }
+        if(role === 'admin') renderAdmin();
+    }
+    document.querySelectorAll('.role-btn').forEach(btn=>btn.addEventListener('click',()=>setRole(btn.dataset.role)));
+
+    // инициализация
+    renderClient();
+    initStaffSelect();
+    renderAdmin();
+</script>
+</body>
+</html>
