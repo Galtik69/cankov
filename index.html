@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -182,11 +181,27 @@
             overflow: hidden;
             margin-bottom: 0.8rem;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hotel-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .hotel-img {
-            height: 110px;
+            height: 140px;
             background-size: cover;
             background-position: center;
+            background-color: #e2e8f0;
+            position: relative;
+        }
+        .hotel-img-placeholder {
+            height: 140px;
+            background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
         }
         .hotel-info {
             padding: 0.7rem;
@@ -268,10 +283,46 @@
             background: #e8f5e9;
             border-left: 4px solid #2d6a4f;
         }
+        .filter-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-row input {
+            flex: 2;
+        }
+        .filter-row select {
+            flex: 1;
+        }
+        .filter-row button {
+            width: auto;
+            flex: 0.5;
+        }
+        .photo-upload {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .photo-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+        }
+        .current-photo {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: #666;
+        }
         @media (max-width: 480px) {
             .stats-grid { gap: 0.4rem; }
             .stat-card { padding: 0.5rem; }
             .stat-number { font-size: 1.1rem; }
+            .filter-row { flex-direction: column; }
+            .filter-row button { width: 100%; }
         }
     </style>
 </head>
@@ -315,18 +366,21 @@
     <!-- Каталог -->
     <div id="catalogPage" class="page">
         <div class="card">
-            <input type="text" id="searchInput" placeholder="🔍 Поиск отеля...">
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                <select id="priceFilter" style="flex:1">
-                    <option value="all">Любая цена</option>
-                    <option value="0-1000">До 1000 ₽</option>
-                    <option value="1000-2000">1000-2000 ₽</option>
-                    <option value="2000+">От 2000 ₽</option>
+            <h3>🏨 Поиск отелей</h3>
+            <div class="filter-row">
+                <input type="text" id="searchInput" placeholder="🔍 Название отеля...">
+                <select id="priceFilter">
+                    <option value="all">💰 Любая цена</option>
+                    <option value="0-1000">💰 До 1000 ₽/сутки</option>
+                    <option value="1000-2000">💰 1000-2000 ₽/сутки</option>
+                    <option value="2000+">💰 От 2000 ₽/сутки</option>
                 </select>
-                <button onclick="filterHotels()">Фильтр</button>
+                <button onclick="applyFilters()">🔍 Найти</button>
             </div>
+            <button onclick="resetFilters()" class="btn-outline" style="margin-top:0.5rem;">🔄 Сбросить фильтры</button>
         </div>
         <div id="catalogHotelsList"></div>
+        <div id="noHotelsMessage" style="display:none; text-align:center; padding:2rem; color:#666;">😔 Нет отелей, соответствующих фильтрам</div>
     </div>
 
     <!-- Профиль клиента -->
@@ -389,8 +443,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Комментарий / ссылка на фото</label>
-                    <input type="text" id="careComment" placeholder="URL фото или описание">
+                    <label>Фото (можно загрузить с устройства)</label>
+                    <input type="file" id="carePhotoInput" accept="image/*" style="padding:0.3rem;">
+                </div>
+                <div class="form-group">
+                    <label>Комментарий</label>
+                    <input type="text" id="careComment" placeholder="Описание">
                 </div>
                 <button onclick="addCareRecord()">➕ Записать уход</button>
             </div>
@@ -405,8 +463,8 @@
     <div id="adminPage" class="page">
         <div id="adminLoginBlock" class="login-block">
             <h3>🔐 Вход в админ-панель</h3>
-            <div class="form-group"><label>Логин</label><input type="text" id="adminLogin" placeholder="admin"></div>
-            <div class="form-group"><label>Пароль</label><input type="password" id="adminPassword" placeholder="По умолчанию: admin123"></div>
+            <div class="form-group"><label>Логин</label><input type="text" id="adminLogin" placeholder="1"></div>
+            <div class="form-group"><label>Пароль</label><input type="password" id="adminPassword" placeholder="По умолчанию: 1"></div>
             <button onclick="adminLogin()">Войти</button>
         </div>
         <div id="adminWorkArea" style="display:none;">
@@ -427,6 +485,11 @@
                 <input type="text" id="newHotelAddr" placeholder="Адрес" style="margin-top:0.5rem;">
                 <input type="number" id="newHotelPrice" placeholder="Цена за сутки" style="margin-top:0.5rem;">
                 <input type="text" id="newHotelServices" placeholder="Услуги (через запятую)" style="margin-top:0.5rem;">
+                <div class="form-group">
+                    <label>Фото отеля</label>
+                    <input type="file" id="newHotelPhoto" accept="image/*">
+                    <div id="newHotelPhotoPreview" class="photo-preview" style="display:none;"></div>
+                </div>
                 <button onclick="addHotel()">➕ Добавить отель</button>
             </div>
             <div class="card"><h3>🏨 Список отелей</h3><div id="adminHotelsList"></div></div>
@@ -466,11 +529,12 @@
 
 <script>
     // ========== ДАННЫЕ ==========
-    let hotels = JSON.parse(localStorage.getItem('pethotel_hotels')) || [
-        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "https://picsum.photos/id/169/300/150" },
-        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "https://picsum.photos/id/150/300/150" },
-        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "https://picsum.photos/id/20/300/150" }
-    ];
+    let hotels = JSON.parse(localStorage.getItem('pethotel_hotels')) || [];
+hotels[0] = { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "Люс.jpg" };
+hotels[1] = { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "Кото.jpg" };
+hotels[2] = { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "зоо.jpg" };
+localStorage.setItem('pethotel_hotels', JSON.stringify(hotels));
+console.log("✅ Фото добавлены! Перезагрузите страницу вручную (F5)");
     let pets = JSON.parse(localStorage.getItem('pethotel_pets')) || [];
     let bookings = JSON.parse(localStorage.getItem('pethotel_bookings')) || [];
     let careRecords = JSON.parse(localStorage.getItem('pethotel_care')) || [];
@@ -478,10 +542,20 @@
     let currentStaffHotel = null;
     let isAdminLoggedIn = false;
     let currentRole = "client";
+    let pendingHotelPhoto = null;
 
-    // ========== СОЗДАНИЕ ТЕСТОВЫХ ДАННЫХ (ДЛЯ КЛИЕНТА И ДЛЯ СОТРУДНИКА) ==========
+    // Функция для преобразования файла в base64
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ========== СОЗДАНИЕ ТЕСТОВЫХ ДАННЫХ ==========
     function initDemoData() {
-        // Добавляем питомца Рекс в профиль клиента (если его нет)
         const hasRex = pets.some(p => p.name === "Рекс" && p.userId === currentUser.id);
         if (!hasRex) {
             pets.push({
@@ -493,7 +567,6 @@
             });
         }
         
-        // Создаём тестовое подтверждённое бронирование (если нет)
         const today = new Date().toISOString().split('T')[0];
         const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
         
@@ -514,7 +587,6 @@
             });
         }
         
-        // Добавляем тестовые записи ухода
         if (careRecords.length === 0) {
             careRecords.push({
                 id: 5001,
@@ -522,6 +594,7 @@
                 petName: "Рекс",
                 type: "🍖 Кормление",
                 comment: "Покушал с аппетитом, съел всю порцию",
+                image: null,
                 date: new Date().toLocaleString(),
                 hotelId: 1,
                 bookingId: 1001
@@ -532,12 +605,12 @@
                 petName: "Рекс",
                 type: "🚶 Прогулка",
                 comment: "Активно гулял 30 минут, играл с мячом",
+                image: null,
                 date: new Date(Date.now() - 86400000).toLocaleString(),
                 hotelId: 1,
                 bookingId: 1001
             });
         }
-        
         saveAll();
     }
 
@@ -604,7 +677,18 @@
             const hotel = hotels.find(h => h.id === b.hotelId);
             return `<div class="booking-item"><div><strong>${hotel?.name}</strong> | ${b.petName}<br>📅 ${b.checkIn}—${b.checkOut}<br>💰 ${b.totalPrice}₽<br><span class="status-badge status-${b.status}">${getStatusText(b.status)}</span></div><button class="btn-sm btn-danger" onclick="cancelBooking(${b.id})">Отменить</button></div>`;
         }).join('') || "<p>Нет заявок</p>";
-        document.getElementById('clientCareReports').innerHTML = careRecords.filter(c => userPets.some(p => p.id === c.petId)).reverse().map(c => `<div class="care-item"><strong>${c.type}</strong> для ${c.petName}<br>${c.comment}<br><small>${c.date}</small></div>`).join('') || "<p>Нет фотоотчётов</p>";
+        
+        const careHtml = careRecords.filter(c => userPets.some(p => p.id === c.petId)).reverse().map(c => `
+            <div class="care-item">
+                <div>
+                    <strong>${c.type}</strong> для ${c.petName}<br>
+                    ${c.comment}<br>
+                    ${c.image ? `<img src="${c.image}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-top:5px;">` : ''}
+                    <small>${c.date}</small>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('clientCareReports').innerHTML = careHtml || "<p>Нет фотоотчётов</p>";
     }
 
     function addPet() {
@@ -623,7 +707,6 @@
     function deletePet(id) { 
         if (confirm("Удалить питомца?")) { 
             pets = pets.filter(p => p.id !== id); 
-            // Также удаляем бронирования этого питомца
             bookings = bookings.filter(b => b.petId !== id);
             saveAll(); 
             renderProfile(); 
@@ -632,16 +715,12 @@
         } 
     }
     
-    // ОТМЕНА ЗАЯВКИ - ПОЛНОСТЬЮ УДАЛЯЕМ БРОНЬ (не просто меняем статус)
     function cancelBooking(id) { 
         if (confirm("Отменить заявку? Она будет полностью удалена из системы.")) { 
-            // Находим бронь для удаления связанных записей ухода
             const bookingToDelete = bookings.find(b => b.id === id);
             if (bookingToDelete) {
-                // Удаляем все записи ухода, связанные с этой бронью
                 careRecords = careRecords.filter(c => c.bookingId !== id);
             }
-            // Удаляем саму бронь
             bookings = bookings.filter(b => b.id !== id); 
             saveAll(); 
             renderProfile(); 
@@ -652,17 +731,80 @@
     }
 
     // ========== КАТАЛОГ ==========
-    function renderCatalog() {
-        document.getElementById('catalogHotelsList').innerHTML = hotels.map(h => `
-            <div class="hotel-card" onclick="showBookingModal(${h.id})">
-                <div class="hotel-img" style="background-image:url('${h.image}'); background-size:cover;"></div>
-                <div class="hotel-info"><div class="hotel-name">${h.name}</div><div>📍 ${h.address}</div><div class="price">${h.pricePerDay} ₽/сутки</div><div class="services-tags">${h.services.map(s => `<span class="service-tag">${s}</span>`).join('')}</div></div>
-            </div>`).join('');
+    let currentFilter = {
+        search: '',
+        price: 'all'
+    };
+
+    function getHotelImage(hotel) {
+        if (hotel.image) return hotel.image;
+        return null;
     }
-    function filterHotels() { renderCatalog(); }
+
+    function renderCatalog() {
+        let filteredHotels = [...hotels];
+        
+        if (currentFilter.search) {
+            const searchLower = currentFilter.search.toLowerCase();
+            filteredHotels = filteredHotels.filter(hotel => 
+                hotel.name.toLowerCase().includes(searchLower) || 
+                hotel.address.toLowerCase().includes(searchLower)
+            );
+        }
+        
+        if (currentFilter.price !== 'all') {
+            filteredHotels = filteredHotels.filter(hotel => {
+                if (currentFilter.price === '0-1000') return hotel.pricePerDay <= 1000;
+                if (currentFilter.price === '1000-2000') return hotel.pricePerDay >= 1000 && hotel.pricePerDay <= 2000;
+                if (currentFilter.price === '2000+') return hotel.pricePerDay >= 2000;
+                return true;
+            });
+        }
+        
+        const hotelsContainer = document.getElementById('catalogHotelsList');
+        const noMessage = document.getElementById('noHotelsMessage');
+        
+        if (filteredHotels.length === 0) {
+            hotelsContainer.innerHTML = '';
+            noMessage.style.display = 'block';
+        } else {
+            noMessage.style.display = 'none';
+            hotelsContainer.innerHTML = filteredHotels.map(h => {
+                const imageUrl = getHotelImage(h);
+                const imageHtml = imageUrl ? 
+                    `<div class="hotel-img" style="background-image:url('${imageUrl}'); background-size:cover;"></div>` : 
+                    `<div class="hotel-img-placeholder">🏨 Нет фото</div>`;
+                return `
+                    <div class="hotel-card" onclick="showBookingModal(${h.id})">
+                        ${imageHtml}
+                        <div class="hotel-info">
+                            <div class="hotel-name">${h.name}</div>
+                            <div>📍 ${h.address}</div>
+                            <div class="price">💰 ${h.pricePerDay} ₽/сутки</div>
+                            <div class="services-tags">${h.services.map(s => `<span class="service-tag">${s}</span>`).join('')}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    function applyFilters() {
+        currentFilter.search = document.getElementById('searchInput').value.trim();
+        currentFilter.price = document.getElementById('priceFilter').value;
+        renderCatalog();
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('priceFilter').value = 'all';
+        currentFilter = { search: '', price: 'all' };
+        renderCatalog();
+    }
+
     function showBookingModal(hotelId) {
         const userPets = getUserPets();
-        if (userPets.length === 0) { alert("Сначала добавьте питомца"); return; }
+        if (userPets.length === 0) { alert("Сначала добавьте питомца в профиле"); return; }
         const hotel = hotels.find(h => h.id === hotelId);
         const today = new Date().toISOString().split('T')[0];
         const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
@@ -709,20 +851,14 @@
     function refreshStaffView() {
         if (!currentStaffHotel) return;
         
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        // Получаем все подтверждённые брони для этого отеля
         const activeBookings = bookings.filter(b => 
             b.hotelId === currentStaffHotel && 
             b.status === 'confirmed'
         );
         
-        // Обновляем статистику
         document.getElementById('staffActivePets').innerText = activeBookings.length;
         document.getElementById('staffTasksCount').innerText = activeBookings.length;
         
-        // Визуальный список активных животных
         const activePetsDiv = document.getElementById('staffActivePetsList');
         if (activeBookings.length === 0) {
             activePetsDiv.innerHTML = '<p style="color:#666;">🐾 Нет активных животных в отеле</p>';
@@ -738,7 +874,6 @@
             `).join('');
         }
         
-        // Обновляем выпадающий список питомцев для журнала ухода
         const careSelect = document.getElementById('carePetSelect');
         if (activeBookings.length === 0) {
             careSelect.innerHTML = '<option>Нет активных питомцев</option>';
@@ -748,7 +883,6 @@
             ).join('');
         }
         
-        // Обновляем журнал ухода
         const logs = careRecords.filter(c => c.hotelId === currentStaffHotel).reverse().slice(0, 10);
         const logDiv = document.getElementById('staffCareLog');
         if (logs.length === 0) {
@@ -759,6 +893,7 @@
                     <div>
                         <strong>${l.type}</strong> для ${l.petName}<br>
                         ${l.comment}<br>
+                        ${l.image ? `<img src="${l.image}" style="max-width:100%; height:80px; object-fit:cover; border-radius:8px; margin-top:5px;">` : ''}
                         <small>${l.date}</small>
                     </div>
                 </div>
@@ -766,7 +901,7 @@
         }
     }
 
-    function addCareRecord() {
+    async function addCareRecord() {
         if (!currentStaffHotel) { alert("Войдите как сотрудник"); return; }
         
         const petOption = document.getElementById('carePetSelect').value;
@@ -778,7 +913,13 @@
         const [petId, bookingId] = petOption.split('|');
         const type = document.getElementById('careTypeSelect').value;
         const comment = document.getElementById('careComment').value;
+        const photoFile = document.getElementById('carePhotoInput').files[0];
         const pet = pets.find(p => p.id == petId);
+        
+        let imageBase64 = null;
+        if (photoFile) {
+            imageBase64 = await fileToBase64(photoFile);
+        }
         
         const newRecord = {
             id: Date.now(),
@@ -786,6 +927,7 @@
             petName: pet?.name || "Питомец",
             type: type,
             comment: comment || "Выполнено",
+            image: imageBase64,
             date: new Date().toLocaleString(),
             hotelId: currentStaffHotel,
             bookingId: parseInt(bookingId)
@@ -795,6 +937,7 @@
         saveAll();
         refreshStaffView();
         document.getElementById('careComment').value = '';
+        document.getElementById('carePhotoInput').value = '';
         alert("✅ Запись ухода добавлена!");
     }
 
@@ -807,11 +950,26 @@
     function adminLogin() {
         const login = document.getElementById('adminLogin').value;
         const password = document.getElementById('adminPassword').value;
-        if (login !== "admin" || password !== "admin123") { alert("Неверный логин или пароль"); return; }
+        if (login !== "1" || password !== "1") { alert("Неверный логин или пароль"); return; }
         isAdminLoggedIn = true;
         document.getElementById('adminLoginBlock').style.display = 'none';
         document.getElementById('adminWorkArea').style.display = 'block';
         renderAdmin();
+        
+        // Превью фото для нового отеля
+        document.getElementById('newHotelPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('newHotelPhotoPreview');
+                    preview.innerHTML = `<img src="${event.target.result}" style="width:100%; height:100px; object-fit:cover; border-radius:8px;">`;
+                    preview.style.display = 'block';
+                    pendingHotelPhoto = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
     
     function adminLogout() { 
@@ -829,7 +987,10 @@
         document.getElementById('adminRevenue').innerText = revenue + "₽";
         document.getElementById('adminTotalBookings').innerText = bookings.length;
         document.getElementById('adminHotelsCount').innerText = hotels.length;
-        document.getElementById('adminHotelsList').innerHTML = hotels.map(h => `<div class="pet-item"><div><strong>${h.name}</strong> | ${h.pricePerDay}₽/сут | ${h.services.join(', ')}</div><button class="btn-sm btn-danger" onclick="deleteHotel(${h.id})">🗑️ Удалить</button></div>`).join('');
+        document.getElementById('adminHotelsList').innerHTML = hotels.map(h => {
+            const imageHtml = h.image ? `<img src="${h.image}" style="width:40px; height:40px; object-fit:cover; border-radius:8px; margin-right:8px;">` : '';
+            return `<div class="pet-item"><div>${imageHtml}<strong>${h.name}</strong> | ${h.pricePerDay}₽/сут | ${h.services.join(', ')}</div><button class="btn-sm btn-danger" onclick="deleteHotel(${h.id})">🗑️ Удалить</button></div>`;
+        }).join('');
         document.getElementById('adminBookingsList').innerHTML = bookings.map(b => {
             const hotel = hotels.find(h => h.id === b.hotelId);
             return `<div class="booking-item"><div><strong>${hotel?.name}</strong> | ${b.petName}<br>📅 ${b.checkIn}—${b.checkOut} 💰${b.totalPrice}₽<br><span class="status-badge status-${b.status}">${getStatusText(b.status)}</span></div><div>${b.status === 'pending' ? `<button onclick="confirmBooking(${b.id})">✅ Подтвердить</button> <button onclick="rejectBooking(${b.id})">❌ Отказать</button>` : ''}</div></div>`;
@@ -856,13 +1017,23 @@
         }
     }
     
-    function addHotel() {
+    async function addHotel() {
         const name = document.getElementById('newHotelName').value.trim();
         const addr = document.getElementById('newHotelAddr').value.trim();
         const price = parseInt(document.getElementById('newHotelPrice').value);
         const services = document.getElementById('newHotelServices').value.split(',').map(s => s.trim());
         if (!name || !addr || isNaN(price)) { alert("Заполните поля"); return; }
-        hotels.push({ id: Date.now(), name, address: addr, pricePerDay: price, services: services.length ? services : ["Уход"], image: "https://picsum.photos/id/26/300/150" });
+        
+        let imageBase64 = pendingHotelPhoto;
+        
+        hotels.push({ 
+            id: Date.now(), 
+            name, 
+            address: addr, 
+            pricePerDay: price, 
+            services: services.length ? services : ["Уход"], 
+            image: imageBase64 
+        });
         saveAll();
         renderAdmin();
         renderCatalog();
@@ -870,7 +1041,11 @@
         document.getElementById('newHotelName').value = ''; 
         document.getElementById('newHotelAddr').value = ''; 
         document.getElementById('newHotelPrice').value = ''; 
-        document.getElementById('newHotelServices').value = '';
+        document.getElementById('newHotelServices').value = ''; 
+        document.getElementById('newHotelPhoto').value = '';
+        document.getElementById('newHotelPhotoPreview').innerHTML = '';
+        document.getElementById('newHotelPhotoPreview').style.display = 'none';
+        pendingHotelPhoto = null;
         alert("✅ Отель добавлен");
     }
     
