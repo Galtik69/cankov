@@ -40,6 +40,7 @@
             align-items: center;
             gap: 6px;
             cursor: pointer;
+            padding: 5px;
         }
         .user-info {
             background: #f4a261;
@@ -59,6 +60,7 @@
             font-size: 0.65rem;
             cursor: pointer;
             transition: background 0.2s;
+            height: 50px;
         }
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
@@ -118,7 +120,7 @@
         .card {
             background: white;
             border-radius: 20px;
-            padding: 1rem;
+            padding: 50px;
             margin-bottom: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
@@ -355,7 +357,7 @@
 <div id="loginScreen" style="display: flex;">
     <div class="container login-container">
         <div class="login-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🐾</div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;"><img src="PETHOTEL.png" width="30" height="30" alt=""></div>
             <h2 style="margin-bottom: 0.5rem;">PetHotel</h2>
             <p style="color: #666; font-size: 0.8rem; margin-bottom: 1.5rem;">Вход по номеру телефона</p>
             
@@ -389,7 +391,7 @@
 <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
 <div id="mainApp" style="display: none;">
     <div class="header">
-        <div class="logo" onclick="switchToPage('home')">🐾 PetHotel</div>
+        <div class="logo" onclick="switchToPage('home')"><img src="PETHOTEL.png" width="50" height="50"> PetHotel</div>
         <div class="user-info" id="userPhoneDisplay"></div>
         <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
     </div>
@@ -398,7 +400,7 @@
         <!-- Главная -->
         <div id="homePage" class="page active">
             <div class="card" style="text-align:center; background: linear-gradient(135deg, #2d6a4f, #1a4d3e); color:white;">
-                <h2>🐾 PetHotel</h2>
+                <h2><img src="PETHOTEL.png" width="50" height="50" alt=""> PetHotel</h2>
                 <p>Агрегатор отелей для животных</p>
                 <button onclick="switchToPage('catalog')" style="background:#f4a261; margin-top:0.5rem;">🔍 Найти отель</button>
             </div>
@@ -468,9 +470,9 @@
             <div id="staffLoginBlock" class="card">
                 <h3>🔐 Вход для сотрудника</h3>
                 <div class="form-group"><label>Отель</label><select id="staffHotelLoginSelect"></select></div>
-                <div class="form-group"><label>Код доступа</label><input type="password" id="staffPassword" placeholder="1234"></div>
+                <div class="form-group"><label>Код доступа</label><input type="password" id="staffPassword" placeholder="12"></div>
                 <button onclick="staffLogin()">Войти</button>
-                <p style="font-size:0.7rem; margin-top:0.5rem; color:#666;">🔑 Тестовый код: 1234</p>
+                <p style="font-size:0.7rem; margin-top:0.5rem; color:#666;">🔑 Тестовый код: 12</p>
             </div>
             <div id="staffWorkArea" style="display:none;">
                 <div style="background: linear-gradient(135deg, #1a4d3e, #0f3b2f); color:white; border-radius:20px; padding:1rem; margin-bottom:1rem; text-align:center;">
@@ -496,7 +498,7 @@
             </div>
         </div>
 
-        <!-- Админ панель с добавлением питомца -->
+        <!-- Админ панель -->
         <div id="adminPage" class="page">
             <div id="adminLoginBlock" class="card">
                 <h3>🔐 Вход в админ-панель</h3>
@@ -516,7 +518,6 @@
                     <div class="stat-card"><div class="stat-number" id="adminHotelsCount">0</div><div>Отели</div></div>
                 </div>
                 
-                <!-- НОВЫЙ БЛОК: Управление питомцами (для администратора) -->
                 <div class="card">
                     <h3>🐕 Управление питомцами (админ)</h3>
                     <div class="admin-user-select">
@@ -527,17 +528,17 @@
                     </div>
                     <div class="form-group">
                         <label>Кличка питомца</label>
-                        <input type="text" id="adminPetName" placeholder="Рекс">
+                        <input type="text" id="adminPetName" placeholder="Кличка">
                     </div>
                     <div class="form-group">
                         <label>Вид / Порода</label>
-                        <input type="text" id="adminPetType" placeholder="Собака, немецкая овчарка">
+                        <input type="text" id="adminPetType" placeholder="Вид, порода">
                     </div>
                     <div class="form-group">
-                        <label>Особенности (аллергии, рацион)</label>
-                        <textarea id="adminPetFeatures" rows="2" placeholder="Не ест курицу, нужны долгие прогулки"></textarea>
+                        <label>Особенности</label>
+                        <textarea id="adminPetFeatures" rows="2" placeholder="Особенности"></textarea>
                     </div>
-                    <button onclick="adminAddPet()">➕ Добавить питомца (от имени пользователя)</button>
+                    <button onclick="adminAddPet()">➕ Добавить питомца</button>
                 </div>
                 
                 <div class="card">
@@ -562,9 +563,9 @@
 
         <!-- О компании -->
         <div id="aboutPage" class="page">
-            <div class="card"><h3>🐾 О платформе</h3><p>Агрегатор отелей для животных. Бронируйте и отслеживайте уход за питомцем.</p></div>
-            <div class="card"><h3>👥 Команда разработки</h3><ul><li>Соколовский Владислав Алексеевич</li><li>Дроздов Глеб Андреевич</li><li>Мункожаргалов Дандар Зориктуевич</li></ul><p><strong>Заказчик:</strong> Санковец Дмитрий Алексеевич</p></div>
-            <div class="card"><h3>📞 Контакты</h3><p>📧 info@pethotel.ru | 📱 +7 (3952) 123-456</p></div>
+            <div class="card"><h3> О платформе</h3><p>Агрегатор отелей для животных. Бронируйте и отслеживайте уход за питомцем. Было потраченно 3 пачки чипсов</p></div>
+            <div class="card"><h3> Команда разработки</h3><ul><li>Соколовский Владислав Алексеевич</li><li>Дроздов Глеб Андреевич</li><li>Мункожаргалов Дандар Зориктуевич</li></ul><p><strong>Заказчик:</strong> Санковец Дмитрий Алексеевич</p></div>
+            <div class="card"><h3> Контакты</h3><p>📧 info@pethotel.ru | Помощь +7 (3952) 123-456</p></div>
         </div>
     </div>
 
@@ -580,13 +581,14 @@
 </div>
 
 <script>
-    // ========== ИНИЦИАЛИЗАЦИЯ ДАННЫХ ==========
+    // ========== ИНИЦИАЛИЗАЦИЯ ДАННЫХ (ВСЁ С НУЛЯ, БЕЗ ТЕСТОВЫХ ДАННЫХ) ==========
     let hotels = [
-        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "Люс.jpg" },
-        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "Кото.jpg" },
-        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "зоо.jpg" }
+        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "https://picsum.photos/id/169/300/150" },
+        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "https://picsum.photos/id/150/300/150" },
+        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "https://picsum.photos/id/20/300/150" }
     ];
     
+    // ВСЕ МАССИВЫ ПУСТЫЕ — НИКАКИХ ТЕСТОВЫХ ДАННЫХ
     let pets = [];
     let bookings = [];
     let careRecords = [];
@@ -600,12 +602,20 @@
     let codeTimer = null;
     let timeLeft = 0;
 
-    // Загружаем сохранённые данные
+    // Загружаем сохранённые данные (если есть)
     function loadData() {
-    const savedPets = localStorage.getItem('pethotel_pets');
-    if (savedPets) pets = JSON.parse(savedPets);  // ← здесь загружаются старые данные!
-}
-
+        const savedHotels = localStorage.getItem('pethotel_hotels');
+        const savedPets = localStorage.getItem('pethotel_pets');
+        const savedBookings = localStorage.getItem('pethotel_bookings');
+        const savedCare = localStorage.getItem('pethotel_care');
+        const savedUsers = localStorage.getItem('pethotel_users');
+        
+        if (savedHotels) hotels = JSON.parse(savedHotels);
+        if (savedPets) pets = JSON.parse(savedPets);
+        if (savedBookings) bookings = JSON.parse(savedBookings);
+        if (savedCare) careRecords = JSON.parse(savedCare);
+        if (savedUsers) users = JSON.parse(savedUsers);
+    }
     
     function saveAll() {
         localStorage.setItem('pethotel_hotels', JSON.stringify(hotels));
@@ -926,7 +936,7 @@
         const hotelId = document.getElementById('staffHotelLoginSelect').value;
         const password = document.getElementById('staffPassword').value;
         if (!hotelId) { alert("Выберите отель"); return; }
-        if (password !== "1234") { alert("Неверный код доступа"); return; }
+        if (password !== "12") { alert("Неверный код доступа"); return; }
         currentStaffHotel = parseInt(hotelId);
         const hotel = hotels.find(h => h.id === currentStaffHotel);
         document.getElementById('staffHotelNameDisplay').innerHTML = `🏨 ${hotel?.name}`;
@@ -960,7 +970,7 @@
         alert("✅ Запись ухода добавлена!");
     }
     
-    // ========== АДМИН (с добавлением питомца) ==========
+    // ========== АДМИН ==========
     function updateAdminUserSelect() {
         const select = document.getElementById('adminPetUserSelect');
         if (!select) return;
@@ -989,7 +999,6 @@
         });
         saveAll();
         
-        // Очищаем поля
         document.getElementById('adminPetName').value = '';
         document.getElementById('adminPetType').value = '';
         document.getElementById('adminPetFeatures').value = '';
@@ -1008,7 +1017,6 @@
             return;
         }
         
-        // Группируем питомцев по пользователям
         const petsByUser = {};
         pets.forEach(pet => {
             const userName = users[pet.userId]?.name || pet.userId.slice(-8);
@@ -1100,6 +1108,17 @@
     function adminLogout() { isAdminLoggedIn = false; document.getElementById('adminLoginBlock').style.display = 'block'; document.getElementById('adminWorkArea').style.display = 'none'; document.getElementById('adminLogin').value = ''; document.getElementById('adminPassword').value = ''; }
     
     // ========== ЗАПУСК ==========
+    // ПРИНУДИТЕЛЬНАЯ ОЧИСТКА СТАРЫХ ДАННЫХ ПРИ ПЕРВОМ ЗАПУСКЕ
+    if (!localStorage.getItem('pethotel_cleaned')) {
+        localStorage.removeItem('pethotel_hotels');
+        localStorage.removeItem('pethotel_pets');
+        localStorage.removeItem('pethotel_bookings');
+        localStorage.removeItem('pethotel_care');
+        localStorage.removeItem('pethotel_users');
+        localStorage.removeItem('pethotel_current_user');
+        localStorage.setItem('pethotel_cleaned', 'true');
+    }
+    
     loadData();
     
     if (!restoreSession()) {
