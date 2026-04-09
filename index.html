@@ -60,7 +60,6 @@
             font-size: 0.65rem;
             cursor: pointer;
             transition: background 0.2s;
-            height: 50px;
         }
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
@@ -120,7 +119,7 @@
         .card {
             background: white;
             border-radius: 20px;
-            padding: 50px;
+            padding: 1rem;
             margin-bottom: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
@@ -357,7 +356,7 @@
 <div id="loginScreen" style="display: flex;">
     <div class="container login-container">
         <div class="login-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;"><img src="PETHOTEL.png" width="30" height="30" alt=""></div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🐾</div>
             <h2 style="margin-bottom: 0.5rem;">PetHotel</h2>
             <p style="color: #666; font-size: 0.8rem; margin-bottom: 1.5rem;">Вход по номеру телефона</p>
             
@@ -391,7 +390,7 @@
 <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
 <div id="mainApp" style="display: none;">
     <div class="header">
-        <div class="logo" onclick="switchToPage('home')"><img src="PETHOTEL.png" width="50" height="50"> PetHotel</div>
+        <div class="logo" onclick="switchToPage('home')">🐾 PetHotel</div>
         <div class="user-info" id="userPhoneDisplay"></div>
         <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
     </div>
@@ -400,7 +399,7 @@
         <!-- Главная -->
         <div id="homePage" class="page active">
             <div class="card" style="text-align:center; background: linear-gradient(135deg, #2d6a4f, #1a4d3e); color:white;">
-                <h2><img src="PETHOTEL.png" width="50" height="50" alt=""> PetHotel</h2>
+                <h2>🐾 PetHotel</h2>
                 <p>Агрегатор отелей для животных</p>
                 <button onclick="switchToPage('catalog')" style="background:#f4a261; margin-top:0.5rem;">🔍 Найти отель</button>
             </div>
@@ -470,9 +469,9 @@
             <div id="staffLoginBlock" class="card">
                 <h3>🔐 Вход для сотрудника</h3>
                 <div class="form-group"><label>Отель</label><select id="staffHotelLoginSelect"></select></div>
-                <div class="form-group"><label>Код доступа</label><input type="password" id="staffPassword" placeholder="12"></div>
+                <div class="form-group"><label>Код доступа</label><input type="password" id="staffPassword" placeholder="1234"></div>
                 <button onclick="staffLogin()">Войти</button>
-                <p style="font-size:0.7rem; margin-top:0.5rem; color:#666;">🔑 Тестовый код: 12</p>
+                <p style="font-size:0.7rem; margin-top:0.5rem; color:#666;">🔑 Тестовый код: 1234</p>
             </div>
             <div id="staffWorkArea" style="display:none;">
                 <div style="background: linear-gradient(135deg, #1a4d3e, #0f3b2f); color:white; border-radius:20px; padding:1rem; margin-bottom:1rem; text-align:center;">
@@ -502,8 +501,8 @@
         <div id="adminPage" class="page">
             <div id="adminLoginBlock" class="card">
                 <h3>🔐 Вход в админ-панель</h3>
-                <div class="form-group"><label>Логин</label><input type="text" id="adminLogin" placeholder="1"></div>
-                <div class="form-group"><label>Пароль</label><input type="password" id="adminPassword" placeholder="1"></div>
+                <div class="form-group"><label>Логин</label><input type="text" id="adminLogin" placeholder="admin"></div>
+                <div class="form-group"><label>Пароль</label><input type="password" id="adminPassword" placeholder="admin123"></div>
                 <button onclick="adminLogin()">Войти</button>
             </div>
             <div id="adminWorkArea" style="display:none;">
@@ -563,9 +562,9 @@
 
         <!-- О компании -->
         <div id="aboutPage" class="page">
-            <div class="card"><h3> О платформе</h3><p>Агрегатор отелей для животных. Бронируйте и отслеживайте уход за питомцем. Было потраченно 3 пачки чипсов</p></div>
-            <div class="card"><h3> Команда разработки</h3><ul><li>Соколовский Владислав Алексеевич</li><li>Дроздов Глеб Андреевич</li><li>Мункожаргалов Дандар Зориктуевич</li></ul><p><strong>Заказчик:</strong> Санковец Дмитрий Алексеевич</p></div>
-            <div class="card"><h3> Контакты</h3><p>📧 info@pethotel.ru | Помощь +7 (3952) 123-456</p></div>
+            <div class="card"><h3>🐾 О платформе</h3><p>Агрегатор отелей для животных. Бронируйте и отслеживайте уход за питомцем.</p></div>
+            <div class="card"><h3>👥 Команда разработки</h3><ul><li>Соколовский Владислав Алексеевич</li><li>Дроздов Глеб Андреевич</li><li>Мункожаргалов Дандар Зориктуевич</li></ul><p><strong>Заказчик:</strong> Санковец Дмитрий Алексеевич</p></div>
+            <div class="card"><h3>📞 Контакты</h3><p>📧 info@pethotel.ru | 📱 +7 (3952) 123-456</p></div>
         </div>
     </div>
 
@@ -581,14 +580,13 @@
 </div>
 
 <script>
-    // ========== ИНИЦИАЛИЗАЦИЯ ДАННЫХ (ВСЁ С НУЛЯ, БЕЗ ТЕСТОВЫХ ДАННЫХ) ==========
+    // ========== ИНИЦИАЛИЗАЦИЯ ДАННЫХ ==========
     let hotels = [
-        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "Люс.jpg" },
-        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "Кото.jpg" },
-        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "зоо.jpg" }
+        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "https://picsum.photos/id/169/300/150" },
+        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "https://picsum.photos/id/150/300/150" },
+        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "https://picsum.photos/id/20/300/150" }
     ];
     
-    // ВСЕ МАССИВЫ ПУСТЫЕ — НИКАКИХ ТЕСТОВЫХ ДАННЫХ
     let pets = [];
     let bookings = [];
     let careRecords = [];
@@ -602,7 +600,6 @@
     let codeTimer = null;
     let timeLeft = 0;
 
-    // Загружаем сохранённые данные (если есть)
     function loadData() {
         const savedHotels = localStorage.getItem('pethotel_hotels');
         const savedPets = localStorage.getItem('pethotel_pets');
@@ -632,7 +629,6 @@
         if (document.getElementById('homeBookingsCount')) document.getElementById('homeBookingsCount').innerText = bookings.length;
     }
     
-    // ========== СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ СЕССИИ ==========
     function saveSession() {
         if (currentUser) {
             localStorage.setItem('pethotel_current_user', JSON.stringify({
@@ -654,7 +650,7 @@
                     currentUser = users[userData.phone];
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
-                    document.getElementById('userPhoneDisplay').innerHTML = `Логин ${currentUser.phone.slice(-11)}`;
+                    document.getElementById('userPhoneDisplay').innerHTML = `📱 ${currentUser.phone.slice(-8)}`;
                     initApp();
                     return true;
                 } else {
@@ -667,7 +663,6 @@
         return false;
     }
     
-    // ========== ФУНКЦИИ ВХОДА ==========
     function sendCode() {
         const phone = document.getElementById('phoneNumber').value.trim();
         if (!phone || phone.length < 6) {
@@ -778,7 +773,7 @@
         
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('userPhoneDisplay').innerHTML = `📱 ${currentUser.phone.slice(-11)}`;
+        document.getElementById('userPhoneDisplay').innerHTML = `📱 ${currentUser.phone.slice(-8)}`;
         
         initApp();
     }
@@ -801,7 +796,6 @@
         if (codeTimer) clearInterval(codeTimer);
     }
     
-    // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
     function getUserPets() { return pets.filter(p => p.userId === currentUser?.phone); }
     function getUserBookings() { return bookings.filter(b => b.userId === currentUser?.phone); }
     function getStatusText(s) {
@@ -836,7 +830,6 @@
         btn.addEventListener('click', () => switchToPage(btn.dataset.page));
     });
     
-    // ========== КЛИЕНТ ==========
     function renderProfile() {
         if (!currentUser) return;
         const userPets = getUserPets();
@@ -868,7 +861,6 @@
     function deletePet(id) { if (confirm("Удалить питомца?")) { pets = pets.filter(p => p.id !== id); bookings = bookings.filter(b => b.petId !== id); saveAll(); renderProfile(); } }
     function cancelBooking(id) { if (confirm("Отменить заявку?")) { bookings = bookings.filter(b => b.id !== id); saveAll(); renderProfile(); if (isAdminLoggedIn) renderAdmin(); if (currentStaffHotel) refreshStaffView(); alert("✅ Заявка отменена"); } }
     
-    // ========== КАТАЛОГ ==========
     let currentFilter = { search: '', price: 'all' };
     
     function renderCatalog() {
@@ -900,43 +892,112 @@
     function applyFilters() { currentFilter.search = document.getElementById('searchInput').value.trim(); currentFilter.price = document.getElementById('priceFilter').value; renderCatalog(); }
     function resetFilters() { document.getElementById('searchInput').value = ''; document.getElementById('priceFilter').value = 'all'; currentFilter = { search: '', price: 'all' }; renderCatalog(); }
     
-    function showBookingModal(hotelId) {
-        const userPets = getUserPets();
-        if (userPets.length === 0) { 
-            alert("❌ Сначала добавьте питомца в профиле!"); 
-            switchToPage('profile');
-            return; 
-        }
-        const hotel = hotels.find(h => h.id === hotelId);
+    // ФУНКЦИЯ ДЛЯ УСТАНОВКИ MIN ДАТЫ В МОДАЛЬНОМ ОКНЕ
+    function setMinDates() {
         const today = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-        const modalHtml = `<div id="bookingModal" class="modal" style="display:flex;"><div class="modal-content"><h3>🏨 ${hotel.name}</h3><div class="form-group"><label>Питомец</label><select id="bookingPetSelect">${userPets.map(p => `<option value="${p.id}">${p.name} (${p.breed})</option>`).join('')}</select></div><div class="form-group"><label>Заезд</label><input type="date" id="bookingCheckIn" value="${today}"></div><div class="form-group"><label>Выезд</label><input type="date" id="bookingCheckOut" value="${tomorrow}"></div><div class="form-group"><label>Доп. услуги</label><input id="bookingExtras" placeholder="Груминг, ветеринар"></div><div style="display:flex; gap:0.5rem;"><button onclick="closeModal()" class="btn-outline">Отмена</button><button onclick="submitBooking(${hotelId})">Отправить</button></div></div></div>`;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    }
-    function closeModal() { const m = document.getElementById('bookingModal'); if(m) m.remove(); }
-    function submitBooking(hotelId) {
-        const petId = parseInt(document.getElementById('bookingPetSelect').value);
-        const checkIn = document.getElementById('bookingCheckIn').value;
-        const checkOut = document.getElementById('bookingCheckOut').value;
-        const extras = document.getElementById('bookingExtras').value;
-        const pet = pets.find(p => p.id === petId);
-        const hotel = hotels.find(h => h.id === hotelId);
-        const days = Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 3600 * 24)));
-        const total = days * hotel.pricePerDay + (extras ? 500 : 0);
-        bookings.push({ id: Date.now(), userId: currentUser.phone, hotelId, petId, petName: pet.name, checkIn, checkOut, extras: extras || "нет", totalPrice: total, status: "pending", createdAt: new Date().toISOString() });
-        saveAll();
-        closeModal();
-        renderProfile();
-        alert("✅ Заявка отправлена! Отель обработает её в ближайшее время.");
+        const checkInInput = document.getElementById('bookingCheckIn');
+        const checkOutInput = document.getElementById('bookingCheckOut');
+        if (checkInInput) {
+            checkInInput.min = today;
+            // Если выбранная дата меньше сегодняшней - исправляем
+            if (checkInInput.value < today) checkInInput.value = today;
+        }
+        if (checkOutInput) {
+            checkOutInput.min = today;
+            if (checkOutInput.value < today) checkOutInput.value = today;
+        }
     }
     
-    // ========== СОТРУДНИК ==========
+    function showBookingModal(hotelId) {
+    const userPets = getUserPets();
+    if (userPets.length === 0) { 
+        alert("❌ Сначала добавьте питомца в профиле!"); 
+        switchToPage('profile');
+        return; 
+    }
+    const hotel = hotels.find(h => h.id === hotelId);
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    
+    const modalHtml = `<div id="bookingModal" class="modal" style="display:flex;"><div class="modal-content"><h3>🏨 ${hotel.name}</h3>
+        <div class="form-group"><label>Питомец</label><select id="bookingPetSelect">${userPets.map(p => `<option value="${p.id}">${p.name} (${p.breed})</option>`).join('')}</select></div>
+        <div class="form-group"><label>Заезд</label><input type="date" id="bookingCheckIn" value="${today}" min="${today}"></div>
+        <div class="form-group"><label>Выезд</label><input type="date" id="bookingCheckOut" value="${tomorrow}" min="${today}"></div>
+        <div class="form-group"><label>Доп. услуги</label><input id="bookingExtras" placeholder="Груминг, ветеринар"></div>
+        <div style="display:flex; gap:0.5rem;"><button onclick="closeModal()" class="btn-outline">Отмена</button><button onclick="submitBooking(${hotelId})">Отправить</button></div>
+    </div></div>`;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    const checkIn = document.getElementById('bookingCheckIn');
+    const checkOut = document.getElementById('bookingCheckOut');
+    
+    if (checkIn) {
+        checkIn.addEventListener('change', function() {
+            if (this.value < today) {
+                this.value = today;
+                alert("❌ Нельзя выбрать дату в прошлом!");
+            }
+            if (checkOut && checkOut.value < this.value) {
+                checkOut.value = this.value;
+            }
+        });
+    }
+    
+    if (checkOut) {
+        checkOut.addEventListener('change', function() {
+            if (this.value < today) {
+                this.value = today;
+                alert("❌ Нельзя выбрать дату в прошлом!");
+            }
+            if (checkIn && this.value < checkIn.value) {
+                this.value = checkIn.value;
+                alert("❌ Дата выезда не может быть раньше даты заезда!");
+            }
+        });
+    }
+}
+    
+    function closeModal() { const m = document.getElementById('bookingModal'); if(m) m.remove(); }
+    
+    function submitBooking(hotelId) {
+    const petId = parseInt(document.getElementById('bookingPetSelect').value);
+    let checkIn = document.getElementById('bookingCheckIn').value;
+    let checkOut = document.getElementById('bookingCheckOut').value;
+    const extras = document.getElementById('bookingExtras').value;
+    const pet = pets.find(p => p.id === petId);
+    const hotel = hotels.find(h => h.id === hotelId);
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (checkIn < today) {
+        alert("❌ Дата заезда не может быть в прошлом!");
+        return;
+    }
+    if (checkOut < today) {
+        alert("❌ Дата выезда не может быть в прошлом!");
+        return;
+    }
+    if (checkOut < checkIn) {
+        alert("❌ Дата выезда не может быть раньше даты заезда!");
+        return;
+    }
+    
+    const days = Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 3600 * 24)));
+    const total = days * hotel.pricePerDay + (extras ? 500 : 0);
+    bookings.push({ id: Date.now(), userId: currentUser.phone, hotelId, petId, petName: pet.name, checkIn, checkOut, extras: extras || "нет", totalPrice: total, status: "pending", createdAt: new Date().toISOString() });
+    saveAll();
+    closeModal();
+    renderProfile();
+    alert("✅ Заявка отправлена! Отель обработает её в ближайшее время.");
+}
+    
     function initStaffSelect() { const sel = document.getElementById('staffHotelLoginSelect'); sel.innerHTML = '<option value="">-- Отель --</option>' + hotels.map(h => `<option value="${h.id}">${h.name}</option>`).join(''); }
     function staffLogin() {
         const hotelId = document.getElementById('staffHotelLoginSelect').value;
         const password = document.getElementById('staffPassword').value;
         if (!hotelId) { alert("Выберите отель"); return; }
-        if (password !== "12") { alert("Неверный код доступа"); return; }
+        if (password !== "1234") { alert("Неверный код доступа"); return; }
         currentStaffHotel = parseInt(hotelId);
         const hotel = hotels.find(h => h.id === currentStaffHotel);
         document.getElementById('staffHotelNameDisplay').innerHTML = `🏨 ${hotel?.name}`;
@@ -970,7 +1031,6 @@
         alert("✅ Запись ухода добавлена!");
     }
     
-    // ========== АДМИН ==========
     function updateAdminUserSelect() {
         const select = document.getElementById('adminPetUserSelect');
         if (!select) return;
@@ -1099,7 +1159,7 @@
     function adminLogin() {
         const login = document.getElementById('adminLogin').value;
         const password = document.getElementById('adminPassword').value;
-        if (login !== "1" || password !== "1") { alert("Неверный логин или пароль"); return; }
+        if (login !== "admin" || password !== "admin123") { alert("Неверный логин или пароль"); return; }
         isAdminLoggedIn = true;
         document.getElementById('adminLoginBlock').style.display = 'none';
         document.getElementById('adminWorkArea').style.display = 'block';
@@ -1107,8 +1167,7 @@
     }
     function adminLogout() { isAdminLoggedIn = false; document.getElementById('adminLoginBlock').style.display = 'block'; document.getElementById('adminWorkArea').style.display = 'none'; document.getElementById('adminLogin').value = ''; document.getElementById('adminPassword').value = ''; }
     
-    // ========== ЗАПУСК ==========
-    // ПРИНУДИТЕЛЬНАЯ ОЧИСТКА СТАРЫХ ДАННЫХ ПРИ ПЕРВОМ ЗАПУСКЕ
+    // ЗАПУСК
     if (!localStorage.getItem('pethotel_cleaned')) {
         localStorage.removeItem('pethotel_hotels');
         localStorage.removeItem('pethotel_pets');
