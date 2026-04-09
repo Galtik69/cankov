@@ -119,7 +119,7 @@
         .card {
             background: white;
             border-radius: 20px;
-            padding: 1rem;
+            padding: 50px;
             margin-bottom: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
@@ -356,7 +356,7 @@
 <div id="loginScreen" style="display: flex;">
     <div class="container login-container">
         <div class="login-card">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🐾</div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;"><img src="PETHOTEL.png" width="30" height="30" alt=""></div>
             <h2 style="margin-bottom: 0.5rem;">PetHotel</h2>
             <p style="color: #666; font-size: 0.8rem; margin-bottom: 1.5rem;">Вход по номеру телефона</p>
             
@@ -390,7 +390,7 @@
 <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
 <div id="mainApp" style="display: none;">
     <div class="header">
-        <div class="logo" onclick="switchToPage('home')">🐾 PetHotel</div>
+        <div class="logo" onclick="switchToPage('home')"><img src="PETHOTEL.png" height="30" width="30" alt=""> PetHotel</div>
         <div class="user-info" id="userPhoneDisplay"></div>
         <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
     </div>
@@ -399,7 +399,7 @@
         <!-- Главная -->
         <div id="homePage" class="page active">
             <div class="card" style="text-align:center; background: linear-gradient(135deg, #2d6a4f, #1a4d3e); color:white;">
-                <h2>🐾 PetHotel</h2>
+                <h2><img src="PETHOTEL.png" height="30" width="30" alt=""> PetHotel</h2>
                 <p>Агрегатор отелей для животных</p>
                 <button onclick="switchToPage('catalog')" style="background:#f4a261; margin-top:0.5rem;">🔍 Найти отель</button>
             </div>
@@ -501,8 +501,8 @@
         <div id="adminPage" class="page">
             <div id="adminLoginBlock" class="card">
                 <h3>🔐 Вход в админ-панель</h3>
-                <div class="form-group"><label>Логин</label><input type="text" id="adminLogin" placeholder="admin"></div>
-                <div class="form-group"><label>Пароль</label><input type="password" id="adminPassword" placeholder="admin123"></div>
+                <div class="form-group"><label>Логин</label><input type="text" id="adminLogin" placeholder="1"></div>
+                <div class="form-group"><label>Пароль</label><input type="password" id="adminPassword" placeholder="1"></div>
                 <button onclick="adminLogin()">Войти</button>
             </div>
             <div id="adminWorkArea" style="display:none;">
@@ -582,11 +582,11 @@
 <script>
     // ========== ИНИЦИАЛИЗАЦИЯ ДАННЫХ ==========
     let hotels = [
-        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "https://picsum.photos/id/169/300/150" },
-        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "https://picsum.photos/id/150/300/150" },
-        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "https://picsum.photos/id/20/300/150" }
+        { id: 1, name: "🐕 ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "Люс.jpg" },
+        { id: 2, name: "🐈 КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "Кото.jpg" },
+        { id: 3, name: "🏡 ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "зоо.jpg" }
     ];
-    
+    localStorage.setItem('pethotel_hotels', JSON.stringify(hotels));
     let pets = [];
     let bookings = [];
     let careRecords = [];
@@ -650,7 +650,7 @@
                     currentUser = users[userData.phone];
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
-                    document.getElementById('userPhoneDisplay').innerHTML = `📱 ${currentUser.phone.slice(-8)}`;
+                    document.getElementById('userPhoneDisplay').innerHTML = `Логин ${currentUser.phone.slice(-11)}`;
                     initApp();
                     return true;
                 } else {
@@ -773,7 +773,7 @@
         
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('userPhoneDisplay').innerHTML = `📱 ${currentUser.phone.slice(-8)}`;
+        document.getElementById('userPhoneDisplay').innerHTML = `Логин ${currentUser.phone.slice(-11)}`;
         
         initApp();
     }
@@ -997,7 +997,7 @@
         const hotelId = document.getElementById('staffHotelLoginSelect').value;
         const password = document.getElementById('staffPassword').value;
         if (!hotelId) { alert("Выберите отель"); return; }
-        if (password !== "1234") { alert("Неверный код доступа"); return; }
+        if (password !== "1") { alert("Неверный код доступа"); return; }
         currentStaffHotel = parseInt(hotelId);
         const hotel = hotels.find(h => h.id === currentStaffHotel);
         document.getElementById('staffHotelNameDisplay').innerHTML = `🏨 ${hotel?.name}`;
@@ -1159,7 +1159,7 @@
     function adminLogin() {
         const login = document.getElementById('adminLogin').value;
         const password = document.getElementById('adminPassword').value;
-        if (login !== "admin" || password !== "admin123") { alert("Неверный логин или пароль"); return; }
+        if (login !== "1" || password !== "1") { alert("Неверный логин или пароль"); return; }
         isAdminLoggedIn = true;
         document.getElementById('adminLoginBlock').style.display = 'none';
         document.getElementById('adminWorkArea').style.display = 'block';
