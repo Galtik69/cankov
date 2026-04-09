@@ -602,18 +602,10 @@
 
     // Загружаем сохранённые данные
     function loadData() {
-        const savedHotels = localStorage.getItem('pethotel_hotels');
-        const savedPets = localStorage.getItem('pethotel_pets');
-        const savedBookings = localStorage.getItem('pethotel_bookings');
-        const savedCare = localStorage.getItem('pethotel_care');
-        const savedUsers = localStorage.getItem('pethotel_users');
-        
-        if (savedHotels) hotels = JSON.parse(savedHotels);
-        if (savedPets) pets = JSON.parse(savedPets);
-        if (savedBookings) bookings = JSON.parse(savedBookings);
-        if (savedCare) careRecords = JSON.parse(savedCare);
-        if (savedUsers) users = JSON.parse(savedUsers);
-    }
+    const savedPets = localStorage.getItem('pethotel_pets');
+    if (savedPets) pets = JSON.parse(savedPets);  // ← здесь загружаются старые данные!
+}
+
     
     function saveAll() {
         localStorage.setItem('pethotel_hotels', JSON.stringify(hotels));
