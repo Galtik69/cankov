@@ -800,6 +800,13 @@ function checkFirebaseConnection() {
                     document.getElementById('mainApp').style.display = 'block';
                     document.getElementById('userPhoneDisplay').innerHTML = currentUser.phone === ADMIN_PHONE ? " Администратор" : ` ${currentUser.phone.slice(-11)}`;
                     initApp();
+                    if (window.firebaseDB) {
+                    setTimeout(() => { 
+                        syncFromFirebase(); 
+                        toggleSync(true); 
+                        checkFirebaseConnection(); 
+                    }, 500);
+                }
                     
                     return true;
                 } else {
