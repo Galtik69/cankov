@@ -617,7 +617,6 @@
 let syncEnabled = true;
 let syncTimeout = null;
 
-// Отправка данных в Firebase
 function syncToFirebase() {
     if (!window.firebaseDB || !syncEnabled) return;
     
@@ -631,10 +630,10 @@ function syncToFirebase() {
     };
     
     window.firebaseSet(window.firebaseRef(window.firebaseDB, 'pethotel/data'), data)
+        .then(() => console.log("✅ Данные отправлены в Firebase"))
         .catch(err => console.error("Ошибка синхронизации:", err));
 }
 
-// Загрузка данных из Firebase
 function syncFromFirebase() {
     if (!window.firebaseDB) return;
     
@@ -643,7 +642,6 @@ function syncFromFirebase() {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // Проверяем, что данные свежее локальных (чтобы не затереть)
             const localTime = localStorage.getItem('pethotel_lastUpdated') || 0;
             if (data.lastUpdated > localTime) {
                 if (data.hotels) hotels = data.hotels;
@@ -655,7 +653,6 @@ function syncFromFirebase() {
                 saveAll();
                 localStorage.setItem('pethotel_lastUpdated', data.lastUpdated);
                 
-                // Обновляем интерфейс
                 if (currentUser) {
                     renderProfile();
                     renderCatalog();
@@ -668,20 +665,17 @@ function syncFromFirebase() {
     }).catch(err => console.error("Ошибка загрузки из Firebase:", err));
 }
 
-// Функция для принудительной синхронизации (вызывать после каждого изменения данных)
 function triggerSync() {
     if (syncTimeout) clearTimeout(syncTimeout);
     syncTimeout = setTimeout(() => {
         syncToFirebase();
-    }, 500); // Задержка 500мс чтобы не спамить запросами
+    }, 500);
 }
 
-// Включение/отключение синхронизации
 function toggleSync(enable) {
     syncEnabled = enable;
     if (syncEnabled) {
         syncToFirebase();
-        // Запускаем прослушивание изменений
         if (window.firebaseDB) {
             const dbRef = window.firebaseRef(window.firebaseDB);
             window.firebaseOnValue(window.firebaseChild(dbRef, 'pethotel/data'), (snapshot) => {
