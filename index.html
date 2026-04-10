@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#1a4d3e">
     <title>PetHotel | Агрегатор отелей для животных</title>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyDACq-rMi4qFpI9ZMFN3CpJ3Zn5ajyreOU",
+    authDomain: "pethotel-d3654.firebaseapp.com",
+    projectId: "pethotel-d3654",
+    storageBucket: "pethotel-d3654.firebasestorage.app",
+    messagingSenderId: "958133963358",
+    appId: "1:958133963358:web:b9e5e1a73455948183c2cf",
+    measurementId: "G-7S75E5M1PM"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  
+  // Сохраняем в глобальные переменные для доступа из обычного скрипта
+  window.firebaseDB = db;
+  window.firebaseRef = ref;
+  window.firebaseSet = set;
+  window.firebaseOnValue = onValue;
+  window.firebaseGet = get;
+  window.firebaseChild = child;
+  
+  console.log("✅ Firebase инициализирован");
+</script>
     <style>
         * {
             margin: 0;
@@ -401,6 +428,9 @@
         <div class="logo" onclick="switchToPage('home')"><img src="PETHOTEL.png" width="50" height="50" alt=""> PetHotel</div>
         <div class="user-info" id="userPhoneDisplay"></div>
         <button class="logout-btn" onclick="logout()"> Выйти</button>
+        <div id="syncStatus" style="background: rgba(255,255,255,0.2); padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.6rem;">
+    ☁️ Синхр.
+</div>
     </div>
 
     <div class="container">
@@ -562,10 +592,12 @@
         </div>
 
         <!-- О компании -->
+         
         <div id="aboutPage" class="page">
             <div class="card"><h3> О платформе</h3><p>Агрегатор отелей для животных. Бронируйте и отслеживайте уход за питомцем.</p><br><p>Затраты 3 пачки чипсов</p></div>
             <div class="cardq"><h3>👥 Команда разработки</h3><ul><li>Соколовский Владислав Алексеевич</li><li>Дроздов Глеб Андреевич</li><li>Мункожаргалов Дандар Зориктуевич</li></ul><p><strong>Заказчик:</strong> Санковец Дмитрий Алексеевич</p></div>
-            <div class="card"><h3>📞 Контакты</h3><p> info@pethotel.ru | Горячая линия +7 (3952) 123-456</p></div>
+            <div class="card"><h3>📞 Контакты</h3><p> info@pethotel.ru | Горячая линия +7 (3952) 123-456</p>
+            </div>
         </div>
     </div>
 
@@ -581,11 +613,120 @@
 </div>
 
 <script>
+    // ========== FIREBASE СИНХРОНИЗАЦИЯ ==========
+let syncEnabled = true;
+let syncTimeout = null;
+
+// Отправка данных в Firebase
+function syncToFirebase() {
+    if (!window.firebaseDB || !syncEnabled) return;
+    
+    const data = {
+        hotels: hotels,
+        pets: pets,
+        bookings: bookings,
+        careRecords: careRecords,
+        users: users,
+        lastUpdated: Date.now()
+    };
+    
+    window.firebaseSet(window.firebaseRef(window.firebaseDB, 'pethotel/data'), data)
+        .catch(err => console.error("Ошибка синхронизации:", err));
+}
+
+// Загрузка данных из Firebase
+function syncFromFirebase() {
+    if (!window.firebaseDB) return;
+    
+    const dbRef = window.firebaseRef(window.firebaseDB);
+    window.firebaseGet(window.firebaseChild(dbRef, 'pethotel/data')).then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            
+            // Проверяем, что данные свежее локальных (чтобы не затереть)
+            const localTime = localStorage.getItem('pethotel_lastUpdated') || 0;
+            if (data.lastUpdated > localTime) {
+                if (data.hotels) hotels = data.hotels;
+                if (data.pets) pets = data.pets;
+                if (data.bookings) bookings = data.bookings;
+                if (data.careRecords) careRecords = data.careRecords;
+                if (data.users) users = data.users;
+                
+                saveAll();
+                localStorage.setItem('pethotel_lastUpdated', data.lastUpdated);
+                
+                // Обновляем интерфейс
+                if (currentUser) {
+                    renderProfile();
+                    renderCatalog();
+                    if (currentUser?.role === "admin") renderAdmin();
+                    if (currentStaffHotel) refreshStaffView();
+                }
+                console.log("🔄 Данные синхронизированы из Firebase");
+            }
+        }
+    }).catch(err => console.error("Ошибка загрузки из Firebase:", err));
+}
+
+// Функция для принудительной синхронизации (вызывать после каждого изменения данных)
+function triggerSync() {
+    if (syncTimeout) clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(() => {
+        syncToFirebase();
+    }, 500); // Задержка 500мс чтобы не спамить запросами
+}
+
+// Включение/отключение синхронизации
+function toggleSync(enable) {
+    syncEnabled = enable;
+    if (syncEnabled) {
+        syncToFirebase();
+        // Запускаем прослушивание изменений
+        if (window.firebaseDB) {
+            const dbRef = window.firebaseRef(window.firebaseDB);
+            window.firebaseOnValue(window.firebaseChild(dbRef, 'pethotel/data'), (snapshot) => {
+                if (snapshot.exists() && syncEnabled) {
+                    const data = snapshot.val();
+                    const localTime = localStorage.getItem('pethotel_lastUpdated') || 0;
+                    if (data.lastUpdated > localTime && data.lastUpdated !== localStorage.getItem('pethotel_myLastSync')) {
+                        syncFromFirebase();
+                    }
+                }
+            });
+        }
+    }
+}
+    // Добавьте в начало скрипта функцию обновления статуса
+function updateSyncStatus(status) {
+    const statusDiv = document.getElementById('syncStatus');
+    if (statusDiv) {
+        if (status === 'online') {
+            statusDiv.innerHTML = '☁️ Синхр. ✅';
+            statusDiv.style.background = 'rgba(100,200,100,0.3)';
+        } else if (status === 'offline') {
+            statusDiv.innerHTML = '📴 Офлайн';
+            statusDiv.style.background = 'rgba(200,100,100,0.3)';
+        } else if (status === 'syncing') {
+            statusDiv.innerHTML = '🔄 Синхр...';
+        }
+    }
+}
+
+// Проверка подключения к Firebase
+function checkFirebaseConnection() {
+    if (window.firebaseDB) {
+        updateSyncStatus('online');
+        return true;
+    } else {
+        updateSyncStatus('offline');
+        return false;
+    }
+}
     // ========== ИНИЦИАЛИЗАЦИЯ ДАННЫХ ==========
     let hotels = [
-        { id: 1, name: " ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "Люс.jpg" },
-        { id: 2, name: " КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "Кото.jpg" },
-        { id: 3, name: " ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "зоо.jpg" }
+        { id: 1, name: " ЛюксПитомец", address: "Иркутск, Байкальская 12", pricePerDay: 1200, services: ["Груминг","Ветеринар"], image: "https://picsum.photos/id/169/300/150" },
+        { id: 2, name: " КотоДом", address: "Иркутск, Ленина 45", pricePerDay: 850, services: ["Кормление","Игры"], image: "https://picsum.photos/id/150/300/150" },
+        { id: 3, name: " ЗооРай", address: "Иркутск, Юбилейный 8", pricePerDay: 1500, services: ["Ветеринар 24/7","Дрессировка"], image: "https://picsum.photos/id/20/300/150" }
     ];
     
     let pets = [];
@@ -618,13 +759,18 @@
     }
     
     function saveAll() {
-        localStorage.setItem('pethotel_hotels', JSON.stringify(hotels));
-        localStorage.setItem('pethotel_pets', JSON.stringify(pets));
-        localStorage.setItem('pethotel_bookings', JSON.stringify(bookings));
-        localStorage.setItem('pethotel_care', JSON.stringify(careRecords));
-        localStorage.setItem('pethotel_users', JSON.stringify(users));
-        updateStats();
-    }
+    localStorage.setItem('pethotel_hotels', JSON.stringify(hotels));
+    localStorage.setItem('pethotel_pets', JSON.stringify(pets));
+    localStorage.setItem('pethotel_bookings', JSON.stringify(bookings));
+    localStorage.setItem('pethotel_care', JSON.stringify(careRecords));
+    localStorage.setItem('pethotel_users', JSON.stringify(users));
+    localStorage.setItem('pethotel_lastUpdated', Date.now());
+    localStorage.setItem('pethotel_myLastSync', Date.now());
+    updateStats();
+    
+    // АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ В FIREBASE
+    triggerSync();
+}
     
     function updateStats() {
         if (document.getElementById('homeHotelsCount')) document.getElementById('homeHotelsCount').innerText = hotels.length;
@@ -655,6 +801,7 @@
                     document.getElementById('mainApp').style.display = 'block';
                     document.getElementById('userPhoneDisplay').innerHTML = currentUser.phone === ADMIN_PHONE ? " Администратор" : ` ${currentUser.phone.slice(-11)}`;
                     initApp();
+                    
                     return true;
                 } else {
                     localStorage.removeItem('pethotel_current_user');
@@ -1233,6 +1380,14 @@
     
     initStaffSelect();
     setupCodeInputs();
+    if (window.firebaseDB) {
+    setTimeout(() => {
+        syncFromFirebase();
+        toggleSync(true);
+        checkFirebaseConnection();
+    }, 1000);
+}
 </script>
+
 </body>
 </html>
