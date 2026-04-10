@@ -938,6 +938,9 @@ function checkFirebaseConnection() {
         }
         
         initApp();
+        if (window.firebaseDB) {
+    setTimeout(() => { syncFromFirebase(); toggleSync(true); checkFirebaseConnection(); }, 500);
+}
     }
     
     function logout() {
