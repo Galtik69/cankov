@@ -731,12 +731,32 @@
         updateStats();
         triggerSync();
     }
-    
     function updateStats() {
-        if (document.getElementById('homeHotelsCount')) document.getElementById('homeHotelsCount').innerText = hotels.length;
-        if (document.getElementById('homePetsCount')) document.getElementById('homePetsCount').innerText = pets.length;
-        if (document.getElementById('homeBookingsCount')) document.getElementById('homeBookingsCount').innerText = bookings.length;
+    if (document.getElementById('homeHotelsCount')) {
+        document.getElementById('homeHotelsCount').innerText = hotels.length;
     }
+    
+    if (currentUser?.role === "admin") {
+        // Администратор видит общую статистику
+        if (document.getElementById('homePetsCount')) {
+            document.getElementById('homePetsCount').innerText = pets.length;
+        }
+        if (document.getElementById('homeBookingsCount')) {
+            document.getElementById('homeBookingsCount').innerText = bookings.length;
+        }
+    } else if (currentUser) {
+        // Обычный клиент видит только свои данные
+        const userPets = getUserPets();
+        const userBookings = getUserBookings();
+        if (document.getElementById('homePetsCount')) {
+            document.getElementById('homePetsCount').innerText = userPets.length;
+        }
+        if (document.getElementById('homeBookingsCount')) {
+            document.getElementById('homeBookingsCount').innerText = userBookings.length;
+        }
+    }
+}
+    
     
     function saveSession() {
         if (currentUser) {
