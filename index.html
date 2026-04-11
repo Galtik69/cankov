@@ -369,6 +369,19 @@
             border-radius: 12px;
             margin-bottom: 0.5rem;
         }
+        .delete-user-btn {
+            background: #e76f51;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.4rem;
+        }
+        .user-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
         @media (max-width: 480px) {
             .stats-grid { gap: 0.4rem; }
             .stat-card { padding: 0.5rem; }
@@ -394,11 +407,10 @@
             <div id="phoneStep">
                 <div class="form-group">
                     <label>Номер телефона</label>
-                    <input type="tel" id="phoneNumber" placeholder="+7 900 123-45-67">
+                    <input type="tel" id="phoneNumber" placeholder="+7 ___ ___ __ __" maxlength="12">
                 </div>
                 <button onclick="sendCode()">Отправить код</button>
                 <p style="font-size: 0.7rem; color: #999; margin-top: 1rem;">Демо-режим: код покажется на экране</p>
-                
             </div>
             
             <div id="codeStep" style="display: none;">
@@ -541,6 +553,12 @@
                     <div class="stat-card"><div class="stat-number" id="adminRevenue">0₽</div><div>Выручка</div></div>
                     <div class="stat-card"><div class="stat-number" id="adminTotalBookings">0</div><div>Брони</div></div>
                     <div class="stat-card"><div class="stat-number" id="adminHotelsCount">0</div><div>Отели</div></div>
+                </div>
+                
+                <!-- НОВЫЙ БЛОК: Управление пользователями (удаление) -->
+                <div class="card">
+                    <h3>Управление пользователями</h3>
+                    <div id="adminUsersList"></div>
                 </div>
                 
                 <div class="card">
@@ -706,6 +724,114 @@
     
     const ADMIN_PHONE = "+79996667788";
 
+    // ========== МАСКА ТЕЛЕФОНА ==========
+    // ========== МАСКА ТЕЛЕФОНА (ИСПРАВЛЕННАЯ) ==========
+function setupPhoneMask() {
+    const phoneInput = document.getElementById('phoneNumber');
+    if (!phoneInput) return;
+    
+    // Устанавливаем начальное значение +7
+    phoneInput.value = '+7';
+    
+    phoneInput.addEventListener('input', function(e) {
+        let value = this.value;
+        
+        // Удаляем все нецифровые символы
+        let digits = value.replace(/\D/g, '');
+        
+        // Если нет цифр, ставим +7
+        if (digits.length === 0) {
+            this.value = '+7';
+            return;
+        }
+        
+        // Если первая цифра не 7, исправляем
+        if (digits[0] !== '7') {
+            digits = '7' + digits.slice(1);
+        }
+        
+        // Ограничиваем до 11 цифр (7 + 10 цифр)
+        if (digits.length > 11) {
+            digits = digits.slice(0, 11);
+        }
+        
+        // Форматируем: +7XXXXXXXXXX (без пробелов)
+        let formatted = '+' + digits;
+        
+        this.value = formatted;
+        
+        // Сохраняем позицию курсора в конце
+        this.setSelectionRange(formatted.length, formatted.length);
+    });
+    
+    // Обработка вставки из буфера обмена
+    phoneInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const digits = pastedText.replace(/\D/g, '');
+        
+        let cleanDigits = '7';
+        if (digits.length > 0) {
+            // Если вставленный номер начинается с 8 или 9, заменяем на 7
+            if (digits[0] === '8' || digits[0] === '9') {
+                cleanDigits = '7' + digits.slice(1);
+            } else if (digits[0] === '7') {
+                cleanDigits = digits;
+            } else {
+                cleanDigits = '7' + digits;
+            }
+        }
+        
+        if (cleanDigits.length > 11) {
+            cleanDigits = cleanDigits.slice(0, 11);
+        }
+        
+        this.value = '+' + cleanDigits;
+    });
+    
+    // Функция для получения чистого номера для отправки
+    window.getCleanPhone = function() {
+        let raw = phoneInput.value.replace(/\D/g, '');
+        if (raw.length === 11 && raw[0] === '7') {
+            return '+' + raw;
+        }
+        if (raw.length === 10) {
+            return '+7' + raw;
+        }
+        return phoneInput.value.trim();
+    };
+}
+
+// Обновите функцию sendCode(), заменив проверку номера:
+function sendCode() {
+    let phone;
+    if (window.getCleanPhone) {
+        phone = window.getCleanPhone();
+    } else {
+        phone = document.getElementById('phoneNumber').value.trim();
+    }
+    
+    // Проверяем формат номера (должен быть +7XXXXXXXXXX - ровно 12 символов с +)
+    const phoneRegex = /^\+7\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+        alert("Введите корректный номер телефона в формате +7XXXXXXXXXX (10 цифр после +7)");
+        return;
+    }
+    
+    pendingPhone = phone;
+    pendingCode = Math.floor(1000 + Math.random() * 9000).toString();
+    
+    alert("Демо-режим: Ваш код подтверждения: " + pendingCode);
+    
+    document.getElementById('phoneStep').style.display = 'none';
+    document.getElementById('codeStep').style.display = 'block';
+    
+    document.querySelectorAll('.code-digit').forEach(input => input.value = '');
+    if (document.querySelector('.code-digit')) document.querySelector('.code-digit').focus();
+    
+    startTimer(60);
+}
+    
     function loadData() {
         const savedHotels = localStorage.getItem('pethotel_hotels');
         const savedPets = localStorage.getItem('pethotel_pets');
@@ -790,9 +916,17 @@
     }
     
     function sendCode() {
-        const phone = document.getElementById('phoneNumber').value.trim();
-        if (!phone || phone.length < 6) {
-            alert("Введите корректный номер телефона");
+        let phone;
+        if (window.getCleanPhone) {
+            phone = window.getCleanPhone();
+        } else {
+            phone = document.getElementById('phoneNumber').value.trim();
+        }
+        
+        // Проверяем формат номера (должен быть +7XXXXXXXXXX)
+        const phoneRegex = /^\+7\d{10}$/;
+        if (!phoneRegex.test(phone)) {
+            alert("Введите корректный номер телефона в формате +7XXXXXXXXXX (10 цифр после +7)");
             return;
         }
         
@@ -928,7 +1062,7 @@
         document.getElementById('mainApp').style.display = 'none';
         document.getElementById('phoneStep').style.display = 'block';
         document.getElementById('codeStep').style.display = 'none';
-        document.getElementById('phoneNumber').value = '';
+        document.getElementById('phoneNumber').value = '+7 ';
         
         if (codeTimer) clearInterval(codeTimer);
     }
@@ -1158,8 +1292,72 @@
         if (!select) return;
         select.innerHTML = '<option value="">-- Выберите пользователя --</option>';
         for (const phone in users) {
+            if (phone === ADMIN_PHONE) continue; // Не показываем админа в списке для добавления питомца
             const userName = users[phone].name || phone.slice(-11);
             select.innerHTML += `<option value="${phone}">${userName} (${phone.slice(-11)})</option>`;
+        }
+    }
+    
+    // ========== НОВАЯ ФУНКЦИЯ: ОТОБРАЖЕНИЕ СПИСКА ПОЛЬЗОВАТЕЛЕЙ ДЛЯ АДМИНА ==========
+    function renderAdminUsersList() {
+        const container = document.getElementById('adminUsersList');
+        if (!container) return;
+        
+        const usersList = Object.keys(users).filter(phone => phone !== ADMIN_PHONE);
+        
+        if (usersList.length === 0) {
+            container.innerHTML = "<p>Нет зарегистрированных пользователей</p>";
+            return;
+        }
+        
+        let html = '<div style="max-height: 300px; overflow-y: auto;">';
+        for (const phone of usersList) {
+            const user = users[phone];
+            const userPetsCount = pets.filter(p => p.userId === phone).length;
+            const userBookingsCount = bookings.filter(b => b.userId === phone).length;
+            
+            html += `
+                <div class="user-list-item">
+                    <div>
+                        <strong>${user.name || phone.slice(-11)}</strong><br>
+                        <small>${phone.slice(-11)} | Питомцев: ${userPetsCount} | Броней: ${userBookingsCount}</small>
+                    </div>
+                    <button class="btn-sm btn-danger" onclick="adminDeleteUser('${phone}')" style="background:#e76f51;">Удалить</button>
+                </div>
+            `;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    // ========== НОВАЯ ФУНКЦИЯ: УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ ==========
+    function adminDeleteUser(phone) {
+        if (phone === ADMIN_PHONE) {
+            alert("Нельзя удалить администратора!");
+            return;
+        }
+        
+        if (confirm(`Удалить пользователя ${phone.slice(-11)}? Все его питомцы и заявки также будут удалены.`)) {
+            // Удаляем питомцев пользователя
+            pets = pets.filter(p => p.userId !== phone);
+            // Удаляем заявки пользователя
+            bookings = bookings.filter(b => b.userId !== phone);
+            // Удаляем записи ухода, связанные с заявками пользователя
+            careRecords = careRecords.filter(c => {
+                const booking = bookings.find(b => b.id === c.bookingId);
+                return booking && booking.userId !== phone;
+            });
+            // Удаляем пользователя
+            delete users[phone];
+            
+            saveAll();
+            renderAdminUsersList();
+            updateAdminUserSelect();
+            renderAdminAllPets();
+            renderProfile();
+            if (currentStaffHotel) refreshStaffView();
+            
+            alert("Пользователь и все его данные удалены!");
         }
     }
     
@@ -1186,6 +1384,7 @@
         document.getElementById('adminPetFeatures').value = '';
         
         renderAdminAllPets();
+        renderAdminUsersList();
         renderProfile();
         alert("Питомец добавлен пользователю!");
     }
@@ -1234,6 +1433,7 @@
             bookings = bookings.filter(b => b.petId !== id);
             saveAll();
             renderAdminAllPets();
+            renderAdminUsersList();
             renderProfile();
             if (currentStaffHotel) refreshStaffView();
             alert("Питомец удалён");
@@ -1264,6 +1464,7 @@
         
         updateAdminUserSelect();
         renderAdminAllPets();
+        renderAdminUsersList(); // ОТОБРАЖАЕМ СПИСОК ПОЛЬЗОВАТЕЛЕЙ
     }
     
     function confirmBooking(id) { 
@@ -1320,6 +1521,7 @@
     
     // ЗАПУСК
     loadData();
+    setupPhoneMask(); // Устанавливаем маску телефона
     
     if (!restoreSession()) {
         document.getElementById('loginScreen').style.display = 'flex';
