@@ -400,7 +400,9 @@
                 <button onclick="sendCode()">📨 Отправить код</button>
                 <p style="font-size: 0.7rem; color: #999; margin-top: 1rem;"> Демо-режим: код покажется на экране</p>
             </div>
-            
+            <div id="syncStatus" style="background: rgba(255,255,255,0.2); padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.6rem;">☁️ Синхр.</div>
+    </div>
+
             <div id="codeStep" style="display: none;">
                 <div class="form-group">
                     <label> Код подтверждения</label>
@@ -425,9 +427,7 @@
         <div class="logo" onclick="switchToPage('home')"><img src="PETHOTEL.png" width="50" height="50" alt=""> PetHotel</div>
         <div class="user-info" id="userPhoneDisplay"></div>
         <button class="logout-btn" onclick="logout()"> Выйти</button>
-        <div id="syncStatus" style="background: rgba(255,255,255,0.2); padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.6rem;">☁️ Синхр.</div>
-    </div>
-
+        
     <div class="container">
         <!-- Главная -->
         <div id="homePage" class="page active">
@@ -510,7 +510,7 @@
                 <div style="background: linear-gradient(135deg, #1a4d3e, #0f3b2f); color:white; border-radius:20px; padding:1rem; margin-bottom:1rem; text-align:center;">
                     <h3> Панель сотрудника</h3>
                     <p id="staffHotelNameDisplay"></p>
-                    <button onclick="staffLogout()" class="btn-outline" style="background:rgba(255,255,255,0.2); color:white; margin-top:0.5rem;">🚪 Выйти</button>
+                    <button onclick="staffLogout()" class="btn-outline" style="background:rgba(255,255,255,0.2); color:white; margin-top:0.5rem;"> Выйти</button>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-number" id="staffActivePets">0</div><div>Активные</div></div>
@@ -783,7 +783,7 @@
         pendingPhone = phone;
         pendingCode = Math.floor(1000 + Math.random() * 9000).toString();
         
-        alert(`📱 Демо-режим: Ваш код подтверждения: ${pendingCode}`);
+        alert(` Демо-режим: Ваш код подтверждения: ${pendingCode}`);
         
         document.getElementById('phoneStep').style.display = 'none';
         document.getElementById('codeStep').style.display = 'block';
@@ -891,9 +891,9 @@
         document.getElementById('mainApp').style.display = 'block';
         
         if (currentUser.role === "admin") {
-            document.getElementById('userPhoneDisplay').innerHTML = "👑 Администратор";
+            document.getElementById('userPhoneDisplay').innerHTML = " Администратор";
         } else {
-            document.getElementById('userPhoneDisplay').innerHTML = `📱 ${currentUser.phone.slice(-11)}`;
+            document.getElementById('userPhoneDisplay').innerHTML = `Логин ${currentUser.phone.slice(-11)}`;
         }
         
         initApp();
@@ -1239,7 +1239,7 @@
             return `<div class="booking-item">
                         <div>
                             <strong> ${userName}</strong> | ${hotel?.name} | ${b.petName}<br>
-                             ${b.checkIn}—${b.checkOut} 💰${b.totalPrice}₽<br>
+                             ${b.checkIn}—${b.checkOut} 💸${b.totalPrice}₽<br>
                             <span class="status-badge status-${b.status}">${getStatusText(b.status)}</span>
                         </div>
                         <div>${b.status === 'pending' ? `<button onclick="confirmBooking(${b.id})">YES</button> <button onclick="rejectBooking(${b.id})">NO</button>` : ''}</div>
@@ -1299,7 +1299,7 @@
     
     function generateReport() {
         const revenue = bookings.filter(b => b.status !== 'cancelled').reduce((s,b) => s + (b.totalPrice || 0), 0);
-        document.getElementById('reportArea').innerText = ` ОТЧЕТ PETHOTEL\n💰 Выручка: ${revenue}₽\n📋 Бронирований: ${bookings.length}\n🏨 Отелей: ${hotels.length}\n🐕 Питомцев: ${pets.length}\n👥 Пользователей: ${Object.keys(users).length}`;
+        document.getElementById('reportArea').innerText = ` ОТЧЕТ PETHOTEL\n 💸 Выручка: ${revenue}₽\n📋 Бронирований: ${bookings.length}\n🏨 Отелей: ${hotels.length}\n🐕 Питомцев: ${pets.length}\n👥 Пользователей: ${Object.keys(users).length}`;
     }
     
     // ЗАПУСК
