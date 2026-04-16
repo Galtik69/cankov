@@ -1,7 +1,9 @@
-const CACHE_NAME = 'pethotel-v1';
 const urlsToCache = [
-  '/',
-  '/index.html'
+  '/cankov/',
+  '/cankov/index.html',
+  '/cankov/manifest.json',
+  '/cankov/launchericon-192x192.png',
+  '/cankov/launchericon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
