@@ -2,7 +2,7 @@
   "name": "PetHotel",
   "short_name": "PetHotel",
   "description": "Агрегатор отелей для животных",
-  "start_url": "/",
+  "start_url": "/cankov/",
   "display": "standalone",
   "theme_color": "#1a4d3e",
   "background_color": "#1a4d3e",
